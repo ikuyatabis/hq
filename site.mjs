@@ -1,5 +1,6 @@
 import {CLINIC_URL,parseClinicSource,countWords,buildPrompt} from './grading-core.mjs';
 const el=id=>document.getElementById(id);
+const fullwidthDigits=value=>String(value).replace(/[0-9]/g,d=>'０１２３４５６７８９'[Number(d)]);
 const selected=name=>document.querySelector(`input[name="${name}"]:checked`)?.value;
 let clinic=null;
 
@@ -17,7 +18,7 @@ async function loadClinic(){
     if(!r.ok)throw new Error('HTTP '+r.status);
     clinic=parseClinicSource(await r.text());
     const time=new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'}).format(new Date());
-    showClinicStatus('本体「持ち込み診療所」の現行mainを取得済み（'+time+'確認）','ready');
+    showClinicStatus('本体「持ち込み診療所」の現行mainを取得済み（'+fullwidthDigits(time)+'確認）','ready');
   }catch(e){
     showClinicStatus('基準を取得できません：'+e.message+'。接続を確認して再取得してください。','error');
   }
@@ -36,7 +37,7 @@ function updateWord(){
   el('rangeBox').hidden=selected('wordMode')!=='range';
 }
 document.querySelectorAll('input[name="wordMode"]').forEach(n=>n.addEventListener('change',updateWord));
-el('answerText').addEventListener('input',()=>{el('wordPreview').textContent=countWords(el('answerText').value).toLocaleString('ja-JP');});
+el('answerText').addEventListener('input',()=>{el('wordPreview').textContent=fullwidthDigits(countWords(el('answerText').value).toLocaleString('ja-JP'));});
 
 function addCondition(label='',points=''){
   const group=document.createElement('div');group.className='condition';
@@ -46,7 +47,7 @@ function addCondition(label='',points=''){
   const b=document.createElement('div');
   const lb=document.createElement('label');lb.textContent='減点幅';
   const p=document.createElement('div');p.className='points';
-  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='1';point.max='1000';point.step='1';point.placeholder='25';point.value=points;
+  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='1';point.max='1000';point.step='1';point.placeholder='２５';point.value=points;
   const unit=document.createElement('span');unit.textContent='点';p.append(point,unit);lb.appendChild(p);b.appendChild(lb);
   const remove=document.createElement('button');remove.className='remove';remove.type='button';remove.setAttribute('aria-label','この条件を削除');remove.textContent='×';remove.addEventListener('click',()=>group.remove());
   group.append(a,b,remove);el('conditionList').append(group);
