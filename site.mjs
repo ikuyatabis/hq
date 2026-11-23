@@ -18,7 +18,7 @@ async function loadClinic(){
     if(!r.ok)throw new Error('HTTP '+r.status);
     clinic=parseClinicSource(await r.text());
     const time=new Intl.DateTimeFormat('ja-JP-u-nu-latn',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'}).format(new Date());
-    showClinicStatus('本体「持ち込み診療所」の現行mainを取得済み（'+time+'確認）','ready');
+    showClinicStatus('本体の現行mainを取得済み（'+time+'確認）','ready');
   }catch(e){
     showClinicStatus('基準を取得できません：'+e.message+'。接続を確認して再取得してください。','error');
   }
