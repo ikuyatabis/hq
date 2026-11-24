@@ -1,4 +1,4 @@
-import {CLINIC_URL,parseClinicSource,countWords,buildPrompt} from './grading-core.mjs';
+import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,exampleConditions} from './grading-core.mjs';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -59,7 +59,7 @@ function addCondition(label='',points=''){
 }
 el('addCondition').addEventListener('click',()=>addCondition());
 el('exampleConditions').addEventListener('click',()=>{
-  el('conditionList').replaceChildren();addCondition('長所が記述されていない',25);addCondition('短所が記述されていない',25);
+  el('conditionList').replaceChildren();for(const {label,points} of exampleConditions())addCondition(label,points);
 });
 
 function formData(){

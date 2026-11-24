@@ -1,0 +1,33 @@
+name: Teachers clinic compatibility QA
+on:
+  push:
+    branches: [main]
+    paths:
+      - "index.html"
+      - "site.mjs"
+      - "grading-core.mjs"
+      - "tests/**"
+      - ".github/workflows/clinic-compatibility-qa.yml"
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  compatibility:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: ikuyatabis/english-writing-feedback
+          ref: main
+          path: clinic-source
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Test the teacher site against the current clinic
+        env:
+          CLINIC_HTML: clinic-source/misc/index.html
+        run: node --test tests/*.test.mjs
