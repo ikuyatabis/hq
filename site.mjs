@@ -1,5 +1,9 @@
 import {CLINIC_URL,parseClinicSource,countWords,buildPrompt} from './grading-core.mjs';
 const el=id=>document.getElementById(id);
+const disableBrowserAssistance=node=>{
+  for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
+  return node;
+};
 const fullwidthDigits=value=>String(value).replace(/[0-9]/g,d=>'０１２３４５６７８９'[Number(d)]);
 const selected=name=>document.querySelector(`input[name="${name}"]:checked`)?.value;
 let clinic=null;
@@ -43,11 +47,11 @@ function addCondition(label='',points=''){
   const group=document.createElement('div');group.className='condition';
   const a=document.createElement('div');
   const la=document.createElement('label');la.textContent='未記載の場合に減点する項目';
-  const inp=document.createElement('input');inp.className='condition-label';inp.type='text';inp.placeholder='例：長所の記述';inp.value=label;la.appendChild(inp);a.appendChild(la);
+  const inp=disableBrowserAssistance(document.createElement('input'));inp.className='condition-label';inp.type='text';inp.placeholder='例：長所の記述';inp.value=label;la.appendChild(inp);a.appendChild(la);
   const b=document.createElement('div');
   const lb=document.createElement('label');lb.textContent='減点幅';
   const p=document.createElement('div');p.className='points';
-  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='1';point.max='1000';point.step='1';point.placeholder='２５';point.value=points;
+  const point=disableBrowserAssistance(document.createElement('input'));point.className='condition-points';point.type='number';point.min='1';point.max='1000';point.step='1';point.placeholder='２５';point.value=points;
   const unit=document.createElement('span');unit.textContent='点';p.append(point,unit);lb.appendChild(p);b.appendChild(lb);
   const remove=document.createElement('button');remove.className='remove';remove.type='button';remove.setAttribute('aria-label','この条件を削除');remove.textContent='×';remove.addEventListener('click',()=>group.remove());
   group.append(a,b,remove);el('conditionList').append(group);
@@ -64,7 +68,7 @@ function formData(){
 
 async function copyText(s){
   if(navigator.clipboard&&window.isSecureContext){try{await navigator.clipboard.writeText(s);return true;}catch{}}
-  const ta=document.createElement('textarea');ta.value=s;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.focus();ta.select();let copied=false;
+  const ta=disableBrowserAssistance(document.createElement('textarea'));ta.value=s;ta.style.position='fixed';ta.style.left='-9999px';document.body.appendChild(ta);ta.focus();ta.select();let copied=false;
   try{copied=document.execCommand('copy');}catch{}ta.remove();return copied;
 }
 
