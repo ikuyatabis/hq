@@ -1,4 +1,4 @@
-# 柴田答案ラボ｜職員室 — 教員用セミオーダー添削
+# 柴田答案ラボ｜秘密基地 — 教員用セミオーダー添削
 
 柴田答案ラボ「持ち込み診療所」の現行 `main` の採点指示に基づき，配点と「未記載時の特別減点」を指定できる教員向けフロントエンドです。
 
@@ -14,15 +14,15 @@
 
 **ファイル添付に関する重要な制約：** GitHub Pagesの静的WebページからChatGPTの新規会話へ写真・PDFを自動転送する機能はありません。必要な写真・PDFはコピーした採点用データとともに**ChatGPT側で一度だけ**添付します。このサイトはファイルアップロードを代行するものではありません。
 
-## `https://ikuyatabis.github.io/teachers/` への公開
+## `https://ikuyatabis.github.io/hq/` への公開
 
-公開先リポジトリは `ikuyatabis/teachers` です。画面のサイト名は「職員室」です。
+移行後の公開先リポジトリは `ikuyatabis/hq` です。画面のサイト名は「秘密基地」（Secret Headquarters）です。
 
 1. `main` ブランチのルートに `index.html`, `styles.css`, `grading-core.mjs`, `site.mjs`, `.nojekyll`, `README.md` を配置する。
 2. リポジトリの **Settings → Pages → Build and deployment** で **Deploy from a branch → main / (root)** を選び，Saveする。
-3. GitHub Pagesのデプロイが成功したら， `https://ikuyatabis.github.io/teachers/` にアクセスする。
+3. GitHub Pagesのデプロイが成功したら， `https://ikuyatabis.github.io/hq/` にアクセスする。
 
-このページ名は「職員室」，GitHubリポジトリ名は `teachers` のままです。このリポジトリは本体の `ikuyatabis/english-writing-feedback` を書き換えません。サイトを非公開にしたい場合は，GitHub Pagesの `noindex` だけではアクセス制限にならないため，別途Cloudflare等でパスワード保護してください。
+このページ名は「秘密基地」，移行後のGitHubリポジトリ名は `hq` です。このリポジトリは本体の `ikuyatabis/english-writing-feedback` を書き換えません。サイトを非公開にしたい場合は，GitHub Pagesの `noindex` だけではアクセス制限にならないため，別途Cloudflare等でパスワード保護してください。
 
 ## 更新方式とメンテナンス
 
