@@ -15,17 +15,19 @@
   <script type="module" src="./site.mjs"></script>
 </head>
 <body>
-  <div class="shell">
-    <header class="header">
-      <div class="round-seal" aria-hidden="true">職</div>
-      <p class="eyebrow">Staff Room</p>
+  <div class="page">
+    <header class="masthead">
+      <div class="masthead-inner">
+      <div class="seal staff-seal" aria-hidden="true">職</div>
+      <p class="kicker">Staff Room</p>
       <h1>職員室│セミオーダー添削</h1>
-      <div class="rule"><i></i><i></i><i></i></div>
-      <p class="lead">配点と必須条件を調整可能です。</p>
-      <div class="status" id="clinicStatus" role="status" aria-live="polite"><span class="status-dot"></span><span id="clinicStatusText">診療所の最新基準を読み込み中です…</span><button id="retry" type="button" class="status-retry" hidden>再取得</button></div>
+      <div class="tricolor" aria-hidden="true"><span></span><span></span><span></span></div>
+      <p class="lede">配点と必須条件を調整可能です。</p>
+      <div class="tool-howto status" id="clinicStatus" role="status" aria-live="polite"><span class="status-dot"></span><span id="clinicStatusText">診療所の最新基準を読み込み中です…</span><button id="retry" type="button" class="status-retry" hidden>再取得</button></div>
+      </div>
     </header>
 
-    <main>
+    <main class="sheet-wrap">
       <form id="gradingForm" novalidate>
         <section class="panel" aria-labelledby="sourceHeading">
           <div class="panel-head"><h2 id="sourceHeading">問題・答案の準備</h2></div>
@@ -33,9 +35,9 @@
 
           <fieldset class="group">
             <legend>問題文・資料</legend>
-            <div class="toggle-group" data-mode-group="problem">
-              <label class="pill"><input type="radio" name="problemMode" value="file" checked>写真・PDFを添付 <small>標準</small></label>
-              <label class="pill"><input type="radio" name="problemMode" value="text">直接入力</label>
+            <div class="choices" data-mode-group="problem">
+              <label class="choice"><input type="radio" name="problemMode" value="file" checked>写真・PDFを添付 <small>標準</small></label>
+              <label class="choice"><input type="radio" name="problemMode" value="text">直接入力</label>
             </div>
             <div id="problemFileNote" class="file-note"><span class="file-icon" aria-hidden="true">▧</span><div>採点用データをChatGPTに貼り付けた後、<strong>問題文・資料の写真またはPDF</strong>をChatGPTに添付します。</div></div>
             <div id="problemTextBox" class="text-box" hidden>
@@ -46,9 +48,9 @@
 
           <fieldset class="group last-group">
             <legend>生徒の答案</legend>
-            <div class="toggle-group" data-mode-group="answer">
-              <label class="pill"><input type="radio" name="answerMode" value="file" checked>写真・PDFを添付 <small>標準</small></label>
-              <label class="pill"><input type="radio" name="answerMode" value="text">直接入力</label>
+            <div class="choices" data-mode-group="answer">
+              <label class="choice"><input type="radio" name="answerMode" value="file" checked>写真・PDFを添付 <small>標準</small></label>
+              <label class="choice"><input type="radio" name="answerMode" value="text">直接入力</label>
             </div>
             <div id="answerFileNote" class="file-note"><span class="file-icon" aria-hidden="true">▧</span><div>採点用データをChatGPTに貼り付けた後、<strong>答案の写真またはPDF</strong>をChatGPTに添付します。</div></div>
             <div id="answerTextBox" class="text-box" hidden>
@@ -76,10 +78,10 @@
           </div>
           <fieldset class="group compact">
             <legend>語数の指定</legend>
-            <div class="toggle-group compact-pills">
-              <label class="pill"><input type="radio" name="wordMode" value="approx" checked>約○語</label>
-              <label class="pill"><input type="radio" name="wordMode" value="range">○～○語</label>
-              <label class="pill"><input type="radio" name="wordMode" value="none">指定なし</label>
+            <div class="choices compact-pills">
+              <label class="choice"><input type="radio" name="wordMode" value="approx" checked>約○語</label>
+              <label class="choice"><input type="radio" name="wordMode" value="range">○～○語</label>
+              <label class="choice"><input type="radio" name="wordMode" value="none">指定なし</label>
             </div>
             <div id="approxBox" class="word-fields"><label for="approxWords">目安語数</label><input type="number" id="approxWords" min="1" max="5000" step="10" value="100"><span>語程度</span></div>
             <div id="rangeBox" class="word-fields" hidden><label for="lowWords">指定範囲</label><input type="number" id="lowWords" min="1" max="5000" value="80"><span>～</span><input type="number" id="highWords" min="1" max="5000" value="120"><span>語</span></div>
@@ -110,7 +112,7 @@
           </fieldset>
         </section>
 
-        <section class="action-panel" aria-labelledby="startHeading">
+        <section class="panel action-panel" aria-labelledby="startHeading">
           <h2 id="startHeading">ChatGPTで採点を始める</h2>
           <p>指定内容と診療所の最新基準をまとめてコピーし、ChatGPTを開きます。写真・PDFは開いたChatGPTの入力欄で添付してください。</p>
           <button id="launch" class="primary" type="submit" disabled>採点用データをコピーしてChatGPTを開く</button>
@@ -122,7 +124,7 @@
           </div>
         </section>
       </form>
-      <p class="footnote">この添削は学習支援のための参考情報であり、実際の入試の採点・合否を保証するものではありません。</p>
+      <p class="disclaimer">この添削は学習支援のための参考情報であり、実際の入試の採点・合否を保証するものではありません。</p>
       <footer>Shibata Writing Lab│柴田答案ラボ</footer>
     </main>
   </div>
