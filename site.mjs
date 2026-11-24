@@ -12,7 +12,7 @@ function showClinicStatus(message,type='loading'){
   el('launch').disabled=type!=='ready';
 }
 async function loadClinic(){
-  showClinicStatus('診療所の最新基準を読み込み中です…');clinic=null;
+  showClinicStatus('最新の基準を読み込み中です…');clinic=null;
   try{
     const r=await fetch(CLINIC_URL,{cache:'no-store'});
     if(!r.ok)throw new Error('HTTP '+r.status);
