@@ -41,6 +41,7 @@ function updateWord(){
   el('rangeBox').hidden=selected('wordMode')!=='range';
 }
 document.querySelectorAll('input[name="wordMode"]').forEach(n=>n.addEventListener('change',updateWord));
+el('problemText').addEventListener('input',()=>el('problemText').setCustomValidity(''));
 el('answerText').addEventListener('input',()=>{el('wordPreview').textContent=fullwidthDigits(countWords(el('answerText').value).toLocaleString('ja-JP'));});
 
 function addCondition(label='',points=''){
@@ -75,6 +76,12 @@ async function copyText(s){
 el('gradingForm').addEventListener('submit',async e=>{
   e.preventDefault();
   el('actionMessage').className='action-message';el('actionMessage').textContent='';el('manualPanel').hidden=true;
+  // Native input feedback is limited to the problem text field.
+  if(selected('problemMode')==='text'){
+    const problem=el('problemText');
+    problem.setCustomValidity(problem.value.trim()?'':'問題文・資料を入力してください。');
+    if(!problem.reportValidity())return;
+  }
   let prompt,fields;
   try{fields=formData();prompt=buildPrompt(fields,clinic);}catch(err){el('actionMessage').classList.add('error');el('actionMessage').textContent=err.message;return;}
   // ポップアップブロックを避けるため，実際のクリックイベント中に開く。
