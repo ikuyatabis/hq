@@ -47,10 +47,10 @@ test('個別ルールの不完全入力，答案の未入力，基準構造破�
 });
 test('語数は句読点単独を除外',()=>assert.equal(countWords('I like it. . Thanks!'),4));
 
-test('サイト名称は職員室，ルートで動く相対パスを使用',()=>{
+test('サイト名称は秘密基地，ルートで動く相対パスを使用',()=>{
   const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  assert.match(html,/<title>セミオーダー添削<\/title>/);
-  assert.match(html,/<h1>職員室│セミオーダー添削<\/h1>/);
+  assert.match(html,/<title>秘密基地｜セミオーダー添削<\/title>/);
+  assert.match(html,/<h1>秘密基地｜セミオーダー添削<\/h1>/);
   assert.match(html,/<style>/);
   assert.match(html,/src="\.\/site\.mjs"/);
   assert.doesNotMatch(html,/先生の採点室/);
