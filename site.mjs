@@ -41,18 +41,18 @@ function updateWord(){
   el('rangeBox').hidden=selected('wordMode')!=='range';
 }
 document.querySelectorAll('input[name="wordMode"]').forEach(n=>n.addEventListener('change',updateWord));
-el('problemText').addEventListener('input',()=>el('problemText').setCustomValidity(''));
+el('gradingForm').addEventListener('input',e=>{if(typeof e.target.setCustomValidity==='function')e.target.setCustomValidity('');});
 el('answerText').addEventListener('input',()=>{el('wordPreview').textContent=fullwidthDigits(countWords(el('answerText').value).toLocaleString('ja-JP'));});
 
 function addCondition(label='',points=''){
   const group=document.createElement('div');group.className='condition';
   const a=document.createElement('div');
   const la=document.createElement('label');la.textContent='未記載の場合に減点する項目';
-  const inp=disableBrowserAssistance(document.createElement('input'));inp.className='condition-label';inp.type='text';inp.placeholder='例：長所の記述';inp.value=label;la.appendChild(inp);a.appendChild(la);
+  const inp=document.createElement('input');inp.spellcheck=true;inp.setAttribute('autocorrect','on');inp.setAttribute('autocomplete','on');inp.setAttribute('autocapitalize','sentences');inp.setAttribute('writingsuggestions','true');inp.className='condition-label';inp.type='text';inp.placeholder='例：長所の記述';inp.value=label;la.appendChild(inp);a.appendChild(la);
   const b=document.createElement('div');
   const lb=document.createElement('label');lb.textContent='減点幅';
   const p=document.createElement('div');p.className='points';
-  const point=disableBrowserAssistance(document.createElement('input'));point.className='condition-points';point.type='number';point.min='1';point.max='1000';point.step='1';point.placeholder='２５';point.value=points;
+  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='1';point.max='1000';point.step='1';point.placeholder='２５';point.value=points;
   const unit=document.createElement('span');unit.textContent='点';p.append(point,unit);lb.appendChild(p);b.appendChild(lb);
   const remove=document.createElement('button');remove.className='remove';remove.type='button';remove.setAttribute('aria-label','この条件を削除');remove.textContent='×';remove.addEventListener('click',()=>group.remove());
   group.append(a,b,remove);el('conditionList').append(group);
@@ -76,11 +76,35 @@ async function copyText(s){
 el('gradingForm').addEventListener('submit',async e=>{
   e.preventDefault();
   el('actionMessage').className='action-message';el('actionMessage').textContent='';el('manualPanel').hidden=true;
-  // Native input feedback is limited to the problem text field.
+  // Native feedback for editable settings and problem text, never the student answer.
+  const report=(node,message='')=>{
+    node.setCustomValidity(message);
+    return node.reportValidity();
+  };
   if(selected('problemMode')==='text'){
     const problem=el('problemText');
-    problem.setCustomValidity(problem.value.trim()?'':'問題文・資料を入力してください。');
-    if(!problem.reportValidity())return;
+    if(!report(problem,problem.value.trim()?'':'問題文・資料を入力してください。'))return;
+  }
+  if(!report(el('maxScore')))return;
+  if(selected('wordMode')==='approx'){
+    const n=el('approxWords');
+    // Keep the existing ten-word spinner, but accept all integer values allowed by the grading core.
+    const value=Number(n.value);
+    if(!n.validity.badInput&&n.value.trim()&&Number.isInteger(value)&&value>=10&&value<=5000){
+      n.setCustomValidity('');
+    }else if(!report(n,'目安語数には10～5000の整数を入力してください。'))return;
+  }
+  if(selected('wordMode')==='range'){
+    const low=el('lowWords'),high=el('highWords');
+    if(!report(low,low.value.trim()?'':'語数の下限を入力してください。'))return;
+    if(!report(high,high.value.trim()?'':'語数の上限を入力してください。'))return;
+    if(Number(low.value)>Number(high.value)&&!report(high,'語数の上限は下限以上にしてください。'))return;
+  }
+  for(const row of document.querySelectorAll('.condition')){
+    const label=row.querySelector('.condition-label'),points=row.querySelector('.condition-points');
+    if(!label.value.trim()&&!points.value.trim()&&!points.validity.badInput)continue;
+    if(!report(label,label.value.trim()?'':'特別減点の項目名を入力してください。'))return;
+    if(!report(points,/^\d+$/.test(points.value)?'':'減点幅を1～1000の整数で入力してください。'))return;
   }
   let prompt,fields;
   try{fields=formData();prompt=buildPrompt(fields,clinic);}catch(err){el('actionMessage').classList.add('error');el('actionMessage').textContent=err.message;return;}
