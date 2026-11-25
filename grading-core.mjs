@@ -95,7 +95,7 @@ export function buildPrompt(fields,clinic){
   if(!['text','file'].includes(fields.problemMode)||!['text','file'].includes(fields.answerMode))throw new Error('問題と答案の提出方法を選んでください。');
   if(!['word','both','screen'].includes(fields.outputMode))throw new Error('出力形式を選んでください。');
   const fullName={opinion:'意見の表明',chart:'図表の説明',task:'課題の遂行'}[fields.kind];
-  const output={word:'Word（.docx）のみ',both:'Word（.docx）＋PDF（.pdf）',screen:'画面結果のみ'}[fields.outputMode];
+  const output={word:'Word（.docx）のみ',both:'Word（.docx）＋PDF（.pdf）',screen:'画面表示のみ'}[fields.outputMode];
   const ruleText=items.length?items.map((x,i)=>`${i+1}. 「${x.label}」が実質的に欠けている場合，内容面で－${x.points}点。`).join('\n'):'追加の特別減点なし。';
   const customNotes=(fields.customNotes||'').trim();
   const sourceText=(mode,text,description)=>mode==='file'?`${description}の写真・PDFを，この採点用データと一緒にChatGPTへ添付する予定（未添付なら開始を保留）。`:`${description}は次のテキストのみを資料とする。\n${JSON.stringify(text.trim())}`;

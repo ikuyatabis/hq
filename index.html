@@ -327,7 +327,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
             <legend class="visually-hidden">添削結果の出力形式</legend>
             <label class="output-choice"><input name="outputMode" type="radio" value="word" checked><span><strong>Word（標準）</strong><small>JIS B5判・縦向きの.docx</small></span></label>
             <label class="output-choice"><input name="outputMode" type="radio" value="both"><span><strong>Word＋PDF</strong><small>同じ内容の２ファイル</small></span></label>
-            <label class="output-choice"><input name="outputMode" type="radio" value="screen"><span><strong>画面結果のみ</strong><small>ファイル生成なし</small></span></label>
+            <label class="output-choice"><input name="outputMode" type="radio" value="screen"><span><strong>画面表示のみ</strong><small>ファイル生成なし</small></span></label>
           </fieldset>
         </section>
 
@@ -335,12 +335,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
           <h2 id="startHeading">ChatGPTで採点を始める</h2>
           <p>指定内容と最新の基準をまとめてコピーし、ChatGPTを開きます。写真・PDFは開いたChatGPTの入力欄で添付してください。</p>
           <button id="launch" class="primary" type="submit" disabled>採点用データをコピーしてChatGPTを開く</button>
-          <button id="previewPrompt" class="secondary" type="submit" style="margin-top:12px" disabled>指示文を表示</button>
           <p class="action-message" role="status" aria-live="polite" id="actionMessage"></p>
-          <div id="previewPanel" hidden>
-            <label for="previewText">生成された指示文</label>
-            <textarea id="previewText" rows="12" readonly spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="none" writingsuggestions="false" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" data-lt-active="false" data-ms-editor="false"></textarea>
-          </div>
           <div id="manualPanel" hidden>
             <label for="manualPrompt">コピーに失敗した場合は、こちらを全選択してコピーしてください。</label>
             <textarea id="manualPrompt" rows="7" readonly spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="none" writingsuggestions="false" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" data-lt-active="false" data-ms-editor="false"></textarea>
