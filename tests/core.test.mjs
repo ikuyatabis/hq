@@ -22,6 +22,8 @@ test('形式はWord標準・Word＋PDF・画面のみの3択',()=>{
 });
 test('50点・25点ずつの例とWordのみを生成',()=>{
   const p=buildPrompt(example,clinic);
+  assert(p.includes('あなたは大学受験英語の指導に精通し，大学入試の自由英作文の採点・添削を専門とする英語講師です。'));
+  assert.doesNotMatch(p,/現行main|持ち込み診療所|診療所準拠|秘密基地/);
   assert.match(p,/今回の満点は50点/);
   assert.match(p,/「長所の記述」が実質的に欠けている場合，内容面で－25点/);
   assert.match(p,/「短所の記述」が実質的に欠けている場合，内容面で－25点/);

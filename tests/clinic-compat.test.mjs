@@ -14,11 +14,13 @@ for(const outputMode of ['word','both','screen']){
   test('現行診療所との連動 / '+outputMode,()=>{
     const p=buildPrompt({...fields,outputMode},clinic);
     assert(p.includes(clinic.common));
+    assert(p.includes('あなたは大学受験英語の指導に精通し，大学入試の自由英作文の採点・添削を専門とする英語講師です。'));
+    assert.doesNotMatch(p,/現行main|持ち込み診療所|診療所準拠|秘密基地/);
     assert(p.includes(clinic.rubrics.task));
     assert(p.includes('今回の満点は50点'));
     assert(p.includes('「長所の記述」が実質的に欠けている場合，内容面で－25点'));
     assert(p.includes('「短所の記述」が実質的に欠けている場合，内容面で－25点'));
-    assert(p.includes('同じ欠落を診療所の通常の内容面の減点で重複して引かない'));
+    assert(p.includes('同じ欠落を後述の通常の内容面の減点で重複して引かない'));
     assert(p.includes('90～110語'));
     for(const instruction of clinic.wordInstructions) assert(p.includes(instruction));
     assert(p.includes('両者が不一致で採点に影響する場合'));
