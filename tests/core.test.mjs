@@ -68,3 +68,13 @@ test('目安語数の下限と10語刻みはHTMLと生成側で一致する',()=
   assert.match(wordRule({mode:'approx',approx:10}),/語数減点0点/);
   assert.match(wordRule({mode:'range',low:1,high:10}),/語数減点0点/);
 });
+test('指示文表示は送信と同じ生成・検証処理を用いる',()=>{
+ const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+ const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+ assert.match(html,/<button id="previewPrompt"[^>]*type="submit"[^>]*disabled>指示文を表示<\/button>/);
+ assert.match(html,/<textarea id="previewText"[^>]*readonly/);
+ assert(site.includes("const preview=e.submitter===el('previewPrompt')"));
+ assert(site.includes("prompt=buildPrompt(fields,clinic)"));
+ assert(site.indexOf('prompt=buildPrompt(fields,clinic)')<site.indexOf('if(preview){'));
+ assert(site.indexOf('if(preview){')<site.indexOf('const tab=window.open'));
+});

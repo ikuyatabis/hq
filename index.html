@@ -335,7 +335,12 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
           <h2 id="startHeading">ChatGPTで採点を始める</h2>
           <p>指定内容と最新の基準をまとめてコピーし、ChatGPTを開きます。写真・PDFは開いたChatGPTの入力欄で添付してください。</p>
           <button id="launch" class="primary" type="submit" disabled>採点用データをコピーしてChatGPTを開く</button>
+          <button id="previewPrompt" class="secondary" type="submit" style="margin-top:12px" disabled>指示文を表示</button>
           <p class="action-message" role="status" aria-live="polite" id="actionMessage"></p>
+          <div id="previewPanel" hidden>
+            <label for="previewText">生成された指示文</label>
+            <textarea id="previewText" rows="12" readonly spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="none" writingsuggestions="false" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" data-lt-active="false" data-ms-editor="false"></textarea>
+          </div>
           <div id="manualPanel" hidden>
             <label for="manualPrompt">コピーに失敗した場合は、こちらを全選択してコピーしてください。</label>
             <textarea id="manualPrompt" rows="7" readonly spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="none" writingsuggestions="false" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" data-lt-active="false" data-ms-editor="false"></textarea>

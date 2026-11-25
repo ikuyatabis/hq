@@ -14,6 +14,7 @@ function showClinicStatus(message,type='loading'){
   el('clinicStatusText').textContent=message;
   el('retry').hidden=type!=='error';
   el('launch').disabled=type!=='ready';
+  if(el('previewPrompt'))el('previewPrompt').disabled=type!=='ready';
 }
 async function loadClinic(){
   showClinicStatus('最新の基準を読み込み中です…');clinic=null;
@@ -75,7 +76,8 @@ async function copyText(s){
 
 el('gradingForm').addEventListener('submit',async e=>{
   e.preventDefault();
-  el('actionMessage').className='action-message';el('actionMessage').textContent='';el('manualPanel').hidden=true;
+  const preview=e.submitter===el('previewPrompt');
+  el('actionMessage').className='action-message';el('actionMessage').textContent='';el('manualPanel').hidden=true;if(el('previewPanel')){el('previewPanel').hidden=true;el('previewText').value='';}
   // Native feedback for editable settings and problem text, never the student answer.
   const report=(node,message='')=>{
     node.setCustomValidity(message);
@@ -108,6 +110,7 @@ el('gradingForm').addEventListener('submit',async e=>{
   }
   let prompt,fields;
   try{fields=formData();prompt=buildPrompt(fields,clinic);}catch(err){el('actionMessage').classList.add('error');el('actionMessage').textContent=err.message;return;}
+  if(preview){el('previewText').value=prompt;el('previewPanel').hidden=false;el('actionMessage').textContent='指示文を表示しました。';return;}
   // ポップアップブロックを避けるため，実際のクリックイベント中に開く。
   const tab=window.open('https://chatgpt.com/','_blank');if(tab)try{tab.opener=null;}catch{}
   const copied=await copyText(prompt);
