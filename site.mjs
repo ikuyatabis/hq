@@ -1,4 +1,4 @@
-import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261128-noscore1';
+import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261128-noscore2';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -88,6 +88,8 @@ function scoreless(){const max=el('maxScore');return validMaxScore(max)&&Number(
 function syncScoreMode(){
   const off=scoreless();
   el('scoredConditions').hidden=off;
+  el('unscoredConditions').hidden=!off;
+  el('wordModeHint').textContent=off?'語数条件に関する指摘には、独自の規定を使用します。':'語数の減点幅・例外は、独自の規定を使用します。';
   el('conditionsHeading').textContent=off?'添削条件を設定する':'減点条件を設定する';
   el('rubricHeading').textContent=off?'添削方法を指定する':'採点方法を指定する';
   el('startHeading').textContent=off?'ChatGPTで添削を始める':'ChatGPTで採点を始める';
@@ -121,10 +123,35 @@ function addCondition(label='',points=''){
 el('addCondition').addEventListener('click',()=>addCondition());
 addCondition();
 addCondition();
+function renumberFeedbackConditions(){
+  [...el('feedbackConditionList').querySelectorAll('.condition')].forEach((row,index)=>{
+    const number=fullwidthDigits(index+1);
+    row.querySelector('.condition-number').textContent='未記載の場合に指摘する項目'+number;
+    row.querySelector('.remove').setAttribute('aria-label','項目'+number+'を削除');
+  });
+}
+function addFeedbackCondition(label=''){
+  const group=document.createElement('div');group.className='condition';
+  const a=document.createElement('div'),la=document.createElement('label'),heading=document.createElement('span');
+  heading.className='condition-number';la.appendChild(heading);
+  const inp=document.createElement('input');inp.type='text';inp.className='feedback-condition-label';inp.value=label;inp.spellcheck=true;
+  inp.setAttribute('autocorrect','on');inp.setAttribute('autocomplete','on');inp.setAttribute('autocapitalize','sentences');inp.setAttribute('writingsuggestions','true');
+  la.appendChild(inp);a.appendChild(la);
+  const remove=document.createElement('button');remove.type='button';remove.className='remove';remove.textContent='×';
+  remove.addEventListener('click',()=>{group.remove();renumberFeedbackConditions();});
+  group.append(a,remove);el('feedbackConditionList').append(group);renumberFeedbackConditions();
+}
+el('addFeedbackCondition').addEventListener('click',()=>addFeedbackCondition());
+addFeedbackCondition();
+addFeedbackCondition();
 function renderConditionExamples(){
   const max=el('maxScore');
   const valid=validMaxScore(max);
-  el('conditionExamplesScore').textContent=valid?'今回の満点：'+max.value+'点（各項目は５点刻みで切り下げ）':'満点を正しく入力してください。';
+  const off=scoreless();
+  el('conditionExamplesIntro').textContent=off?'設問で明示的に要求されている事項について、必要に応じて添削条件を設定しましょう。':'設問で明示的に要求されている事項について、必要に応じて減点条件を設定しましょう。';
+  el('conditionExamplesScore').hidden=off;
+  el('conditionExamplesScore').textContent=off?'':valid?'今回の満点：'+max.value+'点（各項目は５点刻みで切り下げ）':'満点を正しく入力してください。';
+  el('conditionExamplesHint').textContent=off?'設定例は既存の条件を消さずに追加します。':'減点幅は入力後に変更できます。設定例は既存の条件を消さずに追加します。';
   const list=el('conditionExamplesList');
   list.replaceChildren();
   for(const preset of conditionPresets(valid?max.value:0)){
@@ -133,13 +160,18 @@ function renderConditionExamples(){
     const items=document.createElement('ul');
     for(const {label,points} of preset.items){
       const row=document.createElement('li'),name=document.createElement('span'),score=document.createElement('span');
-      name.textContent=label;score.textContent=points>0?'−'+points+'点':'個別設定';row.append(name,score);items.appendChild(row);
+      name.textContent=label;row.append(name);if(!off){score.textContent=points>0?'−'+points+'点':'個別設定';row.append(score);}items.appendChild(row);
     }
     const apply=document.createElement('button');apply.type='button';apply.className='secondary';apply.textContent='この設定例を入力';
-    apply.disabled=!valid||preset.items.some(item=>item.points<1);
+    apply.disabled=!valid||(!off&&preset.items.some(item=>item.points<1));
     apply.addEventListener('click',()=>{
       el('conditionExamplesDialog').close();
       for(const {label,points} of preset.items){
+        if(off){
+          const empty=[...el('feedbackConditionList').querySelectorAll('.feedback-condition-label')].find(input=>!input.value.trim());
+          if(empty)empty.value=label;else addFeedbackCondition(label);
+          continue;
+        }
         const empty=[...el('conditionList').querySelectorAll('.condition')].find(row=>{
           const name=row.querySelector('.condition-label'),score=row.querySelector('.condition-points');
           return !name.value.trim()&&!score.value.trim()&&!score.validity.badInput;
@@ -156,12 +188,15 @@ function renderConditionExamples(){
 el('exampleConditions').addEventListener('click',()=>{
   renderConditionExamples();el('conditionExamplesDialog').showModal();
 });
+el('exampleFeedbackConditions').addEventListener('click',()=>{renderConditionExamples();el('conditionExamplesDialog').showModal();});
 el('closeConditionExamples').addEventListener('click',()=>el('conditionExamplesDialog').close());
 
 function formData(){
-  const conditions=[...document.querySelectorAll('.condition')].map(row=>({label:row.querySelector('.condition-label').value,points:row.querySelector('.condition-points').value}));
+  const conditions=[...el('conditionList').querySelectorAll('.condition')].map(row=>({label:row.querySelector('.condition-label').value,points:row.querySelector('.condition-points').value}));
   const contentPenalties=Object.fromEntries(Object.keys(contentPenaltyDefaults(el('kind').value)).map(key=>[key,el('contentPenalty'+key).value]));
-  return {contentPenalties,kind:el('kind').value,maxScore:el('maxScore').value,invalidAnswerPenalty:el('invalidAnswerPenalty').value,problemMode:selected('problemMode'),answerMode:selected('answerMode'),problemText:el('problemText').value,answerText:el('answerText').value,word:{mode:selected('wordMode'),approx:el('approxWords').value,low:el('lowWords').value,high:el('highWords').value},conditions,customNotes:el('customNotes').value,outputMode:selected('outputMode')};
+  const feedbackChecks=Object.fromEntries(['invalid','B','C','D'].map(key=>[key,el('feedback'+key).checked]));
+  const feedbackConditions=[...el('feedbackConditionList').querySelectorAll('.feedback-condition-label')].map(input=>input.value.trim()).filter(Boolean);
+  return {feedbackChecks,feedbackConditions,contentPenalties,kind:el('kind').value,maxScore:el('maxScore').value,invalidAnswerPenalty:el('invalidAnswerPenalty').value,problemMode:selected('problemMode'),answerMode:selected('answerMode'),problemText:el('problemText').value,answerText:el('answerText').value,word:{mode:selected('wordMode'),approx:el('approxWords').value,low:el('lowWords').value,high:el('highWords').value},conditions,customNotes:el('customNotes').value,outputMode:selected('outputMode')};
 }
 
 async function copyText(s){
@@ -215,7 +250,7 @@ el('gradingForm').addEventListener('submit',async e=>{
     if(!report(high,high.value.trim()?'':'語数の上限を入力してください。'))return;
     if(Number(low.value)>Number(high.value)&&!report(high,'語数の上限は下限以上にしてください。'))return;
   }
-  if(!scoreless())for(const row of document.querySelectorAll('.condition')){
+  if(!scoreless())for(const row of el('conditionList').querySelectorAll('.condition')){
     const label=row.querySelector('.condition-label'),points=row.querySelector('.condition-points');
     if(!label.value.trim()&&!points.value.trim()&&!points.validity.badInput)continue;
     if(!report(label,label.value.trim()?'':'特別減点の項目名を入力してください。'))return;
