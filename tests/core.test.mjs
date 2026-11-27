@@ -98,7 +98,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-13"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-14"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -195,4 +195,13 @@ test('そのほかの特別な指示の入力欄と採点指示への出力を�
   assert.doesNotMatch(html,/customNotes|そのほかの特別な指示/);
   assert.doesNotMatch(site,/customNotes/);
   assert.doesNotMatch(buildPrompt(example,clinic),/【そのほかの指定条件】/);
+});
+
+test('課題の遂行の説明はその分類を選んだ場合だけ表示する',()=>{
+  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  assert(html.includes("※「課題の遂行」では、個人的な体験の記述、提案・助言、立場の選択、イラスト・写真の描写、会話文・手紙文・電子メール（空所補充を含む）などに対応します。"));
+  assert.match(html,/id="taskKindNote" class="micro" hidden/);
+  assert.match(site,/el\('taskKindNote'\)\.hidden=el\('kind'\)\.value!=='task'/);
+  assert.match(site,/syncContentPenalties\(\);syncTaskKindNote\(\)/);
 });

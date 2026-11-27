@@ -251,7 +251,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
   .condition .remove{width:30px}
 }
   </style>
-  <script type="module" src="./site.mjs?v=20261127-13"></script>
+  <script type="module" src="./site.mjs?v=20261127-14"></script>
 </head>
 <body>
   <div class="page">
@@ -305,7 +305,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
           <div class="panel-head"><h2 id="rubricHeading">採点方法を指定する</h2></div>
           <div class="two-col">
             <div class="field"><label for="kind">基本分類</label>
-              <select id="kind">
+              <select id="kind" aria-describedby="taskKindNote">
                 <option value="opinion">① 意見の表明</option>
                 <option value="chart">② 図表の説明</option>
                 <option value="task">③ 課題の遂行</option>
@@ -315,6 +315,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
               <div class="suffix"><input id="maxScore" type="number" min="5" max="1000" step="5" value="40" required><span>点</span></div>
             </div>
           </div>
+          <p id="taskKindNote" class="micro" hidden>※「課題の遂行」では、個人的な体験の記述、提案・助言、立場の選択、イラスト・写真の描写、会話文・手紙文・電子メール（空所補充を含む）などに対応します。</p>
           <fieldset class="group compact">
             <legend>語数の指定</legend>
             <div class="choices compact-pills">

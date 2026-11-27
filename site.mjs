@@ -68,8 +68,12 @@ function syncContentPenalties(){
     input.setCustomValidity('');
   }
 }
-el('kind').addEventListener('change',syncContentPenalties);
+function syncTaskKindNote(){
+  el('taskKindNote').hidden=el('kind').value!=='task';
+}
+el('kind').addEventListener('change',()=>{syncContentPenalties();syncTaskKindNote();});
 syncContentPenalties();
+syncTaskKindNote();
 
 function syncSuggestedDeduction(){
   const points=suggestedDeduction(el('maxScore').value);
