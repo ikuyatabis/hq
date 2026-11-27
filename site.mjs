@@ -44,9 +44,12 @@ document.querySelectorAll('input[name="wordMode"]').forEach(n=>n.addEventListene
 el('gradingForm').addEventListener('input',e=>{if(typeof e.target.setCustomValidity==='function')e.target.setCustomValidity('');});
 el('answerText').addEventListener('input',()=>{el('wordPreview').textContent=fullwidthDigits(countWords(el('answerText').value).toLocaleString('ja-JP'));});
 
+function validMaxScore(input){
+  return !input.validity.badInput&&/^\d+$/.test(input.value)&&Number(input.value)>=1&&Number(input.value)<=1000;
+}
 function syncInvalidAnswerPenalty(){
   const max=el('maxScore'), penalty=el('invalidAnswerPenalty');
-  if(!max.validity.valid)return;
+  if(!validMaxScore(max))return;
   penalty.max=max.value;
   penalty.value=max.value;
   penalty.setCustomValidity('');
@@ -92,7 +95,7 @@ function addCondition(label='',points=''){
 el('addCondition').addEventListener('click',()=>addCondition());
 function renderConditionExamples(){
   const max=el('maxScore');
-  const valid=max.validity.valid;
+  const valid=validMaxScore(max);
   el('conditionExamplesScore').textContent=valid?'今回の満点：'+max.value+'点（各項目は５点刻みで切り下げ）':'満点を正しく入力してください。';
   const list=el('conditionExamplesList');
   list.replaceChildren();
@@ -142,7 +145,12 @@ el('gradingForm').addEventListener('submit',async e=>{
     const problem=el('problemText');
     if(!report(problem,problem.value.trim()?'':'問題文・資料を入力してください。'))return;
   }
-  if(!report(el('maxScore')))return;
+  // Five-point spinner; direct entry still accepts any integer from 1 to 1000.
+  const max=el('maxScore');
+  if(!validMaxScore(max)){
+    report(max,'今回の満点には1～1000の整数を入力してください。');return;
+  }
+  max.setCustomValidity('');
   const penalty=el('invalidAnswerPenalty');
   // Five-point spinner; direct entry accepts any integer within the maximum.
   if(!penalty.validity.badInput&&/^\d+$/.test(penalty.value)&&Number(penalty.value)<=Number(el('maxScore').value)){

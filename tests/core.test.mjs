@@ -96,7 +96,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-8"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-9"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -148,7 +148,17 @@ test('分類別の内容面減点は既存の規定の点数だけを置換す�
 
 test('画面の初期満点は40点、根本的な読み違いの初期減点も40点',()=>{
   const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  assert.match(html,/id="maxScore" type="number" min="1" max="1000" step="1" value="40"/);
+  assert.match(html,/id="maxScore" type="number" min="5" max="1000" step="5" value="40"/);
   assert.match(html,/id="invalidAnswerPenalty" type="number" min="0" max="40" step="5" value="40"/);
   assert.equal(suggestedDeduction(40),20);
+});
+
+test('満点は5点刻みのスピナーと任意の整数入力を両立する',()=>{
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  assert.match(site,/function validMaxScore\(input\)/);
+  assert.match(site,/Number\(input.value\)>=1&&Number\(input.value\)<=1000/);
+  assert.match(site,/if\(!validMaxScore\(max\)\)return/);
+  assert.match(site,/const valid=validMaxScore\(max\)/);
+  assert.doesNotMatch(site,/report\(el\('maxScore'\)\)/);
+  assert.match(buildPrompt({...example,maxScore:43},clinic),/今回の満点は43点/);
 });
