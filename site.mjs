@@ -1,4 +1,4 @@
-import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-sync1';
+import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261128-noscore1';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -47,11 +47,11 @@ el('gradingForm').addEventListener('input',e=>{if(typeof e.target.setCustomValid
 el('answerText').addEventListener('input',()=>{el('wordPreview').textContent=fullwidthDigits(countWords(el('answerText').value).toLocaleString('ja-JP'));});
 
 function validMaxScore(input){
-  return !input.validity.badInput&&/^\d+$/.test(input.value)&&Number(input.value)>=1&&Number(input.value)<=1000;
+  return !input.validity.badInput&&/^\d+$/.test(input.value)&&Number(input.value)>=0&&Number(input.value)<=1000;
 }
 function syncInvalidAnswerPenalty(){
   const max=el('maxScore'), penalty=el('invalidAnswerPenalty');
-  if(!validMaxScore(max))return;
+  if(!validMaxScore(max)||Number(max.value)===0)return;
   penalty.max=max.value;
   penalty.value=max.value;
   penalty.setCustomValidity('');
@@ -65,6 +65,7 @@ function syncContentPenalties(){
   el('contentPenaltyB').disabled=chart;
   el('contentPenaltyDField').hidden=chart;
   el('contentPenaltyD').disabled=chart;
+  if(validMaxScore(max)&&Number(max.value)===0)return;
   for(const [key,value] of Object.entries(defaults)){
     const input=el('contentPenalty'+key);
     input.value=String(value);
@@ -83,7 +84,17 @@ function syncSuggestedDeduction(){
   for(const input of document.querySelectorAll('.condition-points'))input.placeholder=points>0?String(points):'';
   if(el('conditionExamplesDialog').open)renderConditionExamples();
 }
-el('maxScore').addEventListener('input',()=>{syncInvalidAnswerPenalty();syncSuggestedDeduction();if(validMaxScore(el('maxScore')))syncContentPenalties();});
+function scoreless(){const max=el('maxScore');return validMaxScore(max)&&Number(max.value)===0;}
+function syncScoreMode(){
+  const off=scoreless();
+  el('scoredConditions').hidden=off;
+  el('conditionsHeading').textContent=off?'添削条件を設定する':'減点条件を設定する';
+  el('rubricHeading').textContent=off?'添削方法を指定する':'採点方法を指定する';
+  el('startHeading').textContent=off?'ChatGPTで添削を始める':'ChatGPTで採点を始める';
+  el('launch').textContent=off?'添削用データをコピーしてChatGPTを開く':'採点用データをコピーしてChatGPTを開く';
+}
+el('maxScore').addEventListener('input',()=>{syncScoreMode();syncInvalidAnswerPenalty();syncSuggestedDeduction();if(validMaxScore(el('maxScore')))syncContentPenalties();});
+syncScoreMode();
 syncInvalidAnswerPenalty();
 syncSuggestedDeduction();
 
@@ -171,12 +182,13 @@ el('gradingForm').addEventListener('submit',async e=>{
     const problem=el('problemText');
     if(!report(problem,problem.value.trim()?'':'問題文・資料を入力してください。'))return;
   }
-  // Five-point spinner; direct entry still accepts any integer from 1 to 1000.
+  // Five-point spinner; direct entry accepts 0 to 1000.
   const max=el('maxScore');
   if(!validMaxScore(max)){
-    report(max,'今回の満点には1～1000の整数を入力してください。');return;
+    report(max,'今回の満点には0～1000の整数を入力してください。');return;
   }
   max.setCustomValidity('');
+  if(!scoreless()){
   const penalty=el('invalidAnswerPenalty');
   // Five-point spinner; direct entry accepts any integer within the maximum.
   if(!penalty.validity.badInput&&/^\d+$/.test(penalty.value)&&Number(penalty.value)<=Number(el('maxScore').value)){
@@ -187,6 +199,7 @@ el('gradingForm').addEventListener('submit',async e=>{
     if(!input.validity.badInput&&/^\d+$/.test(input.value)&&Number(input.value)<=1000){
       input.setCustomValidity('');
     }else if(!report(input,'減点幅を0～1000の整数で入力してください。'))return;
+  }
   }
   if(selected('wordMode')==='approx'){
     const n=el('approxWords');
@@ -202,7 +215,7 @@ el('gradingForm').addEventListener('submit',async e=>{
     if(!report(high,high.value.trim()?'':'語数の上限を入力してください。'))return;
     if(Number(low.value)>Number(high.value)&&!report(high,'語数の上限は下限以上にしてください。'))return;
   }
-  for(const row of document.querySelectorAll('.condition')){
+  if(!scoreless())for(const row of document.querySelectorAll('.condition')){
     const label=row.querySelector('.condition-label'),points=row.querySelector('.condition-points');
     if(!label.value.trim()&&!points.value.trim()&&!points.validity.badInput)continue;
     if(!report(label,label.value.trim()?'':'特別減点の項目名を入力してください。'))return;
@@ -219,7 +232,7 @@ el('gradingForm').addEventListener('submit',async e=>{
   el('manualPrompt').value=prompt;
   if(!copied||!tab) el('manualPanel').hidden=false;
   if(copied){
-    let msg='採点用データをコピーしました。ChatGPTの入力欄に貼り付けて送信してください。';
+    let msg=(scoreless()?'添削用':'採点用')+'データをコピーしました。ChatGPTの入力欄に貼り付けて送信してください。';
     if(fields.problemMode==='file'||fields.answerMode==='file'){
       const targets=[fields.problemMode==='file'?'問題文・資料':null,fields.answerMode==='file'?'答案':null].filter(Boolean).join('と');
       msg+='\n忘れずに「'+targets+'」の写真・PDFをChatGPTに添付してください。';
@@ -228,7 +241,7 @@ el('gradingForm').addEventListener('submit',async e=>{
     el('actionMessage').textContent=msg;
   }else{
     el('actionMessage').classList.add('error');
-    el('actionMessage').textContent='自動コピーできませんでした。下に表示された採点用データを手動でコピーしてください。';
+    el('actionMessage').textContent='自動コピーできませんでした。下に表示された'+(scoreless()?'添削用':'採点用')+'データを手動でコピーしてください。';
   }
 });
 loadClinic();
