@@ -94,6 +94,8 @@ function addCondition(label='',points=''){
   group.append(a,b,remove);el('conditionList').append(group);syncSuggestedDeduction();
 }
 el('addCondition').addEventListener('click',()=>addCondition());
+addCondition();
+addCondition();
 function renderConditionExamples(){
   const max=el('maxScore');
   const valid=validMaxScore(max);
@@ -112,7 +114,16 @@ function renderConditionExamples(){
     apply.disabled=!valid||preset.items.some(item=>item.points<1);
     apply.addEventListener('click',()=>{
       el('conditionExamplesDialog').close();
-      for(const {label,points} of preset.items)addCondition(label,points);
+      for(const {label,points} of preset.items){
+        const empty=[...el('conditionList').querySelectorAll('.condition')].find(row=>{
+          const name=row.querySelector('.condition-label'),score=row.querySelector('.condition-points');
+          return !name.value.trim()&&!score.value.trim()&&!score.validity.badInput;
+        });
+        if(empty){
+          empty.querySelector('.condition-label').value=label;
+          empty.querySelector('.condition-points').value=String(points);
+        }else addCondition(label,points);
+      }
     });
     section.append(title,items,apply);list.appendChild(section);
   }

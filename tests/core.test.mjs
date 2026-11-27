@@ -67,7 +67,9 @@ test('例の入力ボタンはテスト済みの共通データを使用する',
   assert.match(html,/id="conditionExamplesScore"/);
   assert.doesNotMatch(html,/同じ欠落に対して、特別減点と通常の内容減点を重ねないよう指示します。/);
   assert.match(site,/各項目は５点刻みで切り下げ/);
-  assert.match(site,/for\(const \{label,points\} of preset\.items\)addCondition\(label,points\)/);
+  assert.match(site,/for\(const \{label,points\} of preset\.items\)\{/);
+  assert.match(site,/else addCondition\(label,points\)/);
+  assert.match(site,/!name\.value\.trim\(\)&&!score\.value\.trim\(\)&&!score\.validity\.badInput/);
   assert.doesNotMatch(site,/el\('conditionList'\)\.replaceChildren\(/);
   assert.doesNotMatch(site,/inp\.placeholder\s*=/);
   assert.deepEqual(exampleConditions(),[{label:'長所の記述',points:25},{label:'短所の記述',points:25}]);
@@ -96,7 +98,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-11"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-12"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -179,4 +181,10 @@ test('減点条件の3項目は指定の詳細文言を表示する',()=>{
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
   for(const label of ["「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの","「趣旨が不明確」「テーマとの関連が不明確」など、不明瞭な箇所を含むもの","※「明らかに英文が成立していない記述」や「語彙や構文などの重大な誤りのために趣旨が不明確な記述」が含まれるものを含む","「自明・不要なことがら」「重複したことがら」など、明らかに冗長な内容を含むもの"])assert(html.includes(label));
   assert(site.includes("「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの"));
+});
+
+test('追加の減点条件は最初から2行、未使用の空欄は採点対象外',()=>{
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  assert.match(site,/el\('addCondition'\)\.addEventListener\('click',\(\)=>addCondition\(\)\);\s*addCondition\(\);\s*addCondition\(\);/);
+  assert.deepEqual(parseConditions([{label:'',points:''},{label:'',points:''}]),[]);
 });
