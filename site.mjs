@@ -1,4 +1,4 @@
-import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-6';
+import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-7';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -70,7 +70,6 @@ syncContentPenalties();
 function syncSuggestedDeduction(){
   const points=suggestedDeduction(el('maxScore').value);
   for(const input of document.querySelectorAll('.condition-points'))input.placeholder=points>0?String(points):'';
-  if(el('conditionExamplesDialog').open)renderConditionExamples();
 }
 el('maxScore').addEventListener('input',()=>{syncInvalidAnswerPenalty();syncSuggestedDeduction();});
 syncInvalidAnswerPenalty();
@@ -91,12 +90,9 @@ function addCondition(label='',points=''){
 }
 el('addCondition').addEventListener('click',()=>addCondition());
 function renderConditionExamples(){
-  const max=el('maxScore');
-  const valid=max.validity.valid;
-  el('conditionExamplesScore').textContent=valid?'今回の満点：'+max.value+'点（５点刻みで切り下げ）':'満点を正しく入力してください。';
   const list=el('conditionExamplesList');
   list.replaceChildren();
-  for(const preset of conditionPresets(valid?max.value:0)){
+  for(const preset of conditionPresets()){
     const section=document.createElement('section');section.className='example-preset';
     const title=document.createElement('h3');title.textContent=preset.title;
     const items=document.createElement('ul');
@@ -105,7 +101,6 @@ function renderConditionExamples(){
       name.textContent=label;score.textContent=points>0?'−'+points+'点':'個別設定';row.append(name,score);items.appendChild(row);
     }
     const apply=document.createElement('button');apply.type='button';apply.className='secondary';apply.textContent='この設定例を入力';
-    apply.disabled=!valid||preset.items.some(item=>item.points<1);
     apply.addEventListener('click',()=>{
       el('conditionExamplesDialog').close();
       for(const {label,points} of preset.items)addCondition(label,points);
