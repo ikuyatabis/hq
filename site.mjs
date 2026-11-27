@@ -1,4 +1,4 @@
-import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults,feedbackKeys} from './grading-core.mjs?v=20261128-noscore3';
+import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults,feedbackKeys} from './grading-core.mjs?v=20261128-wording1';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -95,7 +95,8 @@ function syncScoreMode(){
   const off=scoreless();
   el('scoredConditions').hidden=off;
   el('unscoredConditions').hidden=!off;
-  el('wordModeHint').textContent=off?'語数条件に関する指摘には、独自の規定を使用します。':'語数の減点幅・例外は、独自の規定を使用します。';
+  for(const id of ['problemFileDataLabel','answerFileDataLabel'])el(id).textContent=off?'添削用データ':'採点用データ';
+  el('wordModeHint').textContent=off?'語数条件に関する指摘には、独自の基準を適用します。':'語数の減点幅・例外には、独自の基準を適用します。';
   el('conditionsHeading').textContent=off?'添削条件を設定する':'減点条件を設定する';
   el('rubricHeading').textContent=off?'添削方法を指定する':'採点方法を指定する';
   el('startHeading').textContent=off?'ChatGPTで添削を始める':'ChatGPTで採点を始める';
@@ -154,7 +155,7 @@ function renderConditionExamples(){
   const max=el('maxScore');
   const valid=validMaxScore(max);
   const off=scoreless();
-  el('conditionExamplesIntro').textContent=off?'設問で明示的に要求されている事項について、必要に応じて添削条件を設定しましょう。':'設問で明示的に要求されている事項について、必要に応じて減点条件を設定しましょう。';
+  el('conditionExamplesIntro').textContent=off?'設問で明示的に要求されている事項について、必要に応じて添削条件を設定してください。':'設問で明示的に要求されている事項について、必要に応じて減点条件を設定してください。';
   el('conditionExamplesScore').hidden=off;
   el('conditionExamplesScore').textContent=off?'':valid?'今回の満点：'+max.value+'点（各項目は５点刻みで切り下げ）':'満点を正しく入力してください。';
   el('conditionExamplesHint').textContent=off?'設定例は既存の条件を消さずに追加します。':'減点幅は入力後に変更できます。設定例は既存の条件を消さずに追加します。';
@@ -259,7 +260,7 @@ el('gradingForm').addEventListener('submit',async e=>{
   if(!scoreless())for(const row of el('conditionList').querySelectorAll('.condition')){
     const label=row.querySelector('.condition-label'),points=row.querySelector('.condition-points');
     if(!label.value.trim()&&!points.value.trim()&&!points.validity.badInput)continue;
-    if(!report(label,label.value.trim()?'':'特別減点の項目名を入力してください。'))return;
+    if(!report(label,label.value.trim()?'':'減点条件の項目名を入力してください。'))return;
     // Five-point spinner; direct entry still accepts every integer from 1 to 1000.
     if(!points.validity.badInput&&/^\d+$/.test(points.value)&&Number(points.value)>=1&&Number(points.value)<=1000){
       points.setCustomValidity('');
@@ -278,7 +279,7 @@ el('gradingForm').addEventListener('submit',async e=>{
       const targets=[fields.problemMode==='file'?'問題文・資料':null,fields.answerMode==='file'?'答案':null].filter(Boolean).join('と');
       msg+='\n忘れずに「'+targets+'」の写真・PDFをChatGPTに添付してください。';
     }
-    if(!tab)msg+='\n新しいタブが開かなかったため，下のリンクからChatGPTを開いてください。';
+    if(!tab)msg+='\n新しいタブが開かなかったため、下のリンクからChatGPTを開いてください。';
     el('actionMessage').textContent=msg;
   }else{
     el('actionMessage').classList.add('error');
