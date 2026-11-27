@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import {CLINIC_URL,parseClinicSource,buildPrompt,exampleConditions} from '../grading-core.mjs';
+import {CLINIC_URL,parseClinicSource,buildPrompt,exampleConditions,applyContentPenalties,contentPenaltyDefaults} from '../grading-core.mjs';
 
 const source=process.env.CLINIC_HTML
   ? fs.readFileSync(process.env.CLINIC_HTML,'utf8')
@@ -51,5 +51,16 @@ test('本体の語数照合または例外処理が欠落したら生成前に�
   for(const key of ['採点前に設問の語数条件（','複数空所では，各空所の指示語数','【保留】','【失敗時】']){
     const broken=source.replaceAll(key,'削除された指示：');
     assert.throws(()=>parseClinicSource(broken),/取得できません/);
+  }
+});
+test('現行診療所の分類別基準に教員指定の減点幅を反映する',()=>{
+  for(const kind of ['opinion','chart','task']){
+    const defaults=contentPenaltyDefaults(kind);
+    assert.equal(applyContentPenalties(clinic.rubrics[kind],kind,defaults),clinic.rubrics[kind]);
+    const overrides=kind==='chart'?{B:15,C:5}:{B:15,C:5,D:0};
+    const changed=applyContentPenalties(clinic.rubrics[kind],kind,overrides);
+    const prompt=buildPrompt({...fields,kind,outputMode:'screen',contentPenalties:overrides},clinic);
+    assert(prompt.includes(kind==='chart'?changed.replace('表・グラフの趣旨を根本的に取り違えた場合は内容面の減点Cを30点とし，最終得点を0点とする。','表・グラフの趣旨を根本的に取り違え，設問への答えとして成立していない場合は，今回の最優先の特別減点（内容面－50点）を適用する。'):changed));
+    assert(!prompt.includes(clinic.rubrics[kind]));
   }
 });

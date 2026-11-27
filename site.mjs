@@ -1,4 +1,4 @@
-import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction} from './grading-core.mjs?v=20261127-4';
+import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-6';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -51,6 +51,22 @@ function syncInvalidAnswerPenalty(){
   penalty.value=max.value;
   penalty.setCustomValidity('');
 }
+function syncContentPenalties(){
+  const kind=el('kind').value;
+  const chart=kind==='chart';
+  const defaults=contentPenaltyDefaults(kind);
+  el('contentPenaltyBLabel').textContent=chart?'図表と矛盾する明白な誤認':'事実誤認・不適切な理由や根拠・重大な矛盾';
+  el('contentPenaltyDField').hidden=chart;
+  el('contentPenaltyD').disabled=chart;
+  for(const [key,value] of Object.entries(defaults)){
+    const input=el('contentPenalty'+key);
+    input.value=String(value);
+    input.setCustomValidity('');
+  }
+}
+el('kind').addEventListener('change',syncContentPenalties);
+syncContentPenalties();
+
 function syncSuggestedDeduction(){
   const points=suggestedDeduction(el('maxScore').value);
   for(const input of document.querySelectorAll('.condition-points'))input.placeholder=points>0?String(points):'';
@@ -104,7 +120,8 @@ el('closeConditionExamples').addEventListener('click',()=>el('conditionExamplesD
 
 function formData(){
   const conditions=[...document.querySelectorAll('.condition')].map(row=>({label:row.querySelector('.condition-label').value,points:row.querySelector('.condition-points').value}));
-  return {kind:el('kind').value,maxScore:el('maxScore').value,invalidAnswerPenalty:el('invalidAnswerPenalty').value,problemMode:selected('problemMode'),answerMode:selected('answerMode'),problemText:el('problemText').value,answerText:el('answerText').value,word:{mode:selected('wordMode'),approx:el('approxWords').value,low:el('lowWords').value,high:el('highWords').value},customNotes:el('customNotes').value,conditions,outputMode:selected('outputMode')};
+  const contentPenalties=Object.fromEntries(Object.keys(contentPenaltyDefaults(el('kind').value)).map(key=>[key,el('contentPenalty'+key).value]));
+  return {contentPenalties,kind:el('kind').value,maxScore:el('maxScore').value,invalidAnswerPenalty:el('invalidAnswerPenalty').value,problemMode:selected('problemMode'),answerMode:selected('answerMode'),problemText:el('problemText').value,answerText:el('answerText').value,word:{mode:selected('wordMode'),approx:el('approxWords').value,low:el('lowWords').value,high:el('highWords').value},customNotes:el('customNotes').value,conditions,outputMode:selected('outputMode')};
 }
 
 async function copyText(s){
@@ -131,6 +148,12 @@ el('gradingForm').addEventListener('submit',async e=>{
   if(!penalty.validity.badInput&&/^\d+$/.test(penalty.value)&&Number(penalty.value)<=Number(el('maxScore').value)){
     penalty.setCustomValidity('');
   }else if(!report(penalty,'減点幅は0～'+el('maxScore').value+'の整数で入力してください。'))return;
+  for(const key of Object.keys(contentPenaltyDefaults(el('kind').value))){
+    const input=el('contentPenalty'+key);
+    if(!input.validity.badInput&&/^\d+$/.test(input.value)&&Number(input.value)<=1000){
+      input.setCustomValidity('');
+    }else if(!report(input,'減点幅を0～1000の整数で入力してください。'))return;
+  }
   if(selected('wordMode')==='approx'){
     const n=el('approxWords');
     // Keep the existing ten-word spinner, but accept all integer values allowed by the grading core.
