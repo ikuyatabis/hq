@@ -59,7 +59,7 @@ function syncContentPenalties(){
   const chart=kind==='chart';
   const max=el('maxScore');
   const defaults=contentPenaltyDefaults(kind,validMaxScore(max)?max.value:40);
-  el('contentPenaltyBLabel').textContent=chart?'図表と矛盾する明白な誤認':'事実誤認・不適切な理由や根拠・重大な矛盾';
+  el('contentPenaltyBLabel').textContent=chart?'図表と矛盾する明白な誤認':'「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの';
   el('contentPenaltyDField').hidden=chart;
   el('contentPenaltyD').disabled=chart;
   for(const [key,value] of Object.entries(defaults)){

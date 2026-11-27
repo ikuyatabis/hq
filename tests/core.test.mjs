@@ -96,7 +96,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-10"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-11"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -172,4 +172,11 @@ test('分類別減点の初期値は満点の半分・3分の1を5点刻みで�
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
   assert.match(site,/contentPenaltyDefaults\(kind,validMaxScore\(max\)\?max.value:40\)/);
   assert.match(site,/if\(validMaxScore\(el\('maxScore'\)\)\)syncContentPenalties\(\)/);
+});
+
+test('減点条件の3項目は指定の詳細文言を表示する',()=>{
+  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  for(const label of ["「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの","「趣旨が不明確」「テーマとの関連が不明確」など、不明瞭な箇所を含むもの","※「明らかに英文が成立していない記述」や「語彙や構文などの重大な誤りのために趣旨が不明確な記述」が含まれるものを含む","「自明なことがら」「不要なことがら」「重複したことがら」など，明らかに冗長な内容を含むもの"])assert(html.includes(label));
+  assert(site.includes("「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの"));
 });
