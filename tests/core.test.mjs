@@ -79,3 +79,10 @@ test('指示文の個別表示は設けず、出力形式の既定値はWordと�
  assert.match(html,/name="outputMode" type="radio" value="word" checked/);
  assert.match(html,/value="screen"><span><strong>画面表示のみ<\/strong>/);
 });
+
+test('特別減点の減点幅の例示は半角数字と入力値と同じ色を使用する',()=>{
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
+  assert.match(site,/point\.placeholder='25'/);
+  assert.match(css,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
+});

@@ -62,7 +62,7 @@ function addCondition(label='',points=''){
   const b=document.createElement('div');
   const lb=document.createElement('label');lb.textContent='減点幅';
   const p=document.createElement('div');p.className='points';
-  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='5';point.max='1000';point.step='5';point.placeholder='２５';point.value=points;
+  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='5';point.max='1000';point.step='5';point.placeholder='25';point.value=points;
   const unit=document.createElement('span');unit.textContent='点';p.append(point,unit);lb.appendChild(p);b.appendChild(lb);
   const remove=document.createElement('button');remove.className='remove';remove.type='button';remove.setAttribute('aria-label','この条件を削除');remove.textContent='×';remove.addEventListener('click',()=>group.remove());
   group.append(a,b,remove);el('conditionList').append(group);
