@@ -1,4 +1,4 @@
-import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-10';
+import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-13';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -136,7 +136,7 @@ el('closeConditionExamples').addEventListener('click',()=>el('conditionExamplesD
 function formData(){
   const conditions=[...document.querySelectorAll('.condition')].map(row=>({label:row.querySelector('.condition-label').value,points:row.querySelector('.condition-points').value}));
   const contentPenalties=Object.fromEntries(Object.keys(contentPenaltyDefaults(el('kind').value)).map(key=>[key,el('contentPenalty'+key).value]));
-  return {contentPenalties,kind:el('kind').value,maxScore:el('maxScore').value,invalidAnswerPenalty:el('invalidAnswerPenalty').value,problemMode:selected('problemMode'),answerMode:selected('answerMode'),problemText:el('problemText').value,answerText:el('answerText').value,word:{mode:selected('wordMode'),approx:el('approxWords').value,low:el('lowWords').value,high:el('highWords').value},customNotes:el('customNotes').value,conditions,outputMode:selected('outputMode')};
+  return {contentPenalties,kind:el('kind').value,maxScore:el('maxScore').value,invalidAnswerPenalty:el('invalidAnswerPenalty').value,problemMode:selected('problemMode'),answerMode:selected('answerMode'),problemText:el('problemText').value,answerText:el('answerText').value,word:{mode:selected('wordMode'),approx:el('approxWords').value,low:el('lowWords').value,high:el('highWords').value},conditions,outputMode:selected('outputMode')};
 }
 
 async function copyText(s){

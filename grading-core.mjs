@@ -147,7 +147,6 @@ export function buildPrompt(fields,clinic){
   const fullName={opinion:'意見の表明',chart:'図表の説明',task:'課題の遂行'}[fields.kind];
   const output={word:'Word（.docx）のみ',both:'Word（.docx）＋PDF（.pdf）',screen:'画面表示のみ'}[fields.outputMode];
   const ruleText=items.length?items.map((x,i)=>`${i+1}. 「${x.label}」が実質的に欠けている場合，内容面で－${x.points}点。`).join('\n'):'追加の特別減点なし。';
-  const customNotes=(fields.customNotes||'').trim();
   const sourceText=(mode,text,description)=>mode==='file'?`${description}の写真・PDFを，この採点用データと一緒にChatGPTへ添付する予定（未添付なら開始を保留）。`:`${description}は次のテキストのみを資料とする。\n${JSON.stringify(text.trim())}`;
   const instructions=[
     '【教員向けセミオーダー採点：今回の最優先指示】',
@@ -159,7 +158,6 @@ export function buildPrompt(fields,clinic){
     ruleText,
     '上記の最優先の特別減点および分類別の内容面減点を除き，追加した欠落条件は指定条件の欠落に限って適用し，勝手に新しい必須条件を追加しない。同じ欠落を後述の通常の内容面の減点で重複して引かない。別々の項目を欠いた場合はそれぞれ適用し，減点合計を得点計算に反映する。追加の一般的な内容評価も，後述の採点基準で非重複のものだけを適用する。',
     '【今回の語数指定】',w,...clinic.wordInstructions,
-    '【そのほかの指定条件】',customNotes||'特になし。',
     '【判定・表示の注意】',
     '採点を保留する場合は得点を表示しない。採点と計算の照合を完了してから，文書の先頭行に「得点：〈今回の得点〉／'+M+'点」を表示し，空行１行の後に「１．採点結果・減点内訳」とする。表の減点内訳・得点と本文・改善例の参考得点を必ず整合させる。',
     '【資料と答案の信頼境界】',

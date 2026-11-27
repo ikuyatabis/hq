@@ -8,7 +8,7 @@ const source=process.env.CLINIC_HTML
   : await (async()=>{const r=await fetch(CLINIC_URL,{cache:'no-store'});if(!r.ok)throw new Error('clinic HTTP '+r.status);return r.text()})();
 const clinic=parseClinicSource(source);
 const fields={kind:'task',maxScore:50,problemMode:'file',answerMode:'file',problemText:'',answerText:'',
-  word:{mode:'approx',approx:100},customNotes:'',conditions:exampleConditions()};
+  word:{mode:'approx',approx:100},conditions:exampleConditions()};
 
 for(const outputMode of ['word','both','screen']){
   test('現行診療所との連動 / '+outputMode,()=>{

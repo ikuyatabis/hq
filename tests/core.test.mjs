@@ -5,7 +5,7 @@ const data=`const COMMON=["【最終回答の構成：３部構成】","得点�
 `const RUBRIC={opinion:["意見採点"].join("\\n"),chart:["図表採点"].join("\\n"),task:["課題採点"].join("\\n")};\n`+
 `const texts=["【ファイル出力：Word経由でPDF生成】同内容のファイルを作る","【Word書式：共通仕様】Wordの規定","【PDF書式：Wordから変換】PDFの規定","【完成英文・書き起こし答案の段落・空白】段落の規定","【保留】保留時はファイルを作らない","【失敗時】ファイル生成に失敗した場合の規定","採点前に設問の語数条件（テスト条件）を確認する","複数空所では，各空所の指示語数を確認する","語数は生徒が実際に書いた英語の解答部分のみを空白区切りで数える"];`;
 const clinic=parseClinicSource(data);
-const example={kind:'opinion',maxScore:50,problemMode:'file',answerMode:'file',problemText:'',answerText:'',word:{mode:'approx',approx:100},customNotes:'',conditions:exampleConditions(),outputMode:'word'};
+const example={kind:'opinion',maxScore:50,problemMode:'file',answerMode:'file',problemText:'',answerText:'',word:{mode:'approx',approx:100},conditions:exampleConditions(),outputMode:'word'};
 
 test('診療所の共通・分類別・出力指示を構造解析し，実行しない',()=>{
   assert.equal(clinic.common.includes('共通の採点指示'),true);
@@ -98,7 +98,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-12"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-13"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -187,4 +187,12 @@ test('追加の減点条件は最初から2行、未使用の空欄は採点対�
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
   assert.match(site,/el\('addCondition'\)\.addEventListener\('click',\(\)=>addCondition\(\)\);\s*addCondition\(\);\s*addCondition\(\);/);
   assert.deepEqual(parseConditions([{label:'',points:''},{label:'',points:''}]),[]);
+});
+
+test('そのほかの特別な指示の入力欄と採点指示への出力を廃止する',()=>{
+  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  assert.doesNotMatch(html,/customNotes|そのほかの特別な指示/);
+  assert.doesNotMatch(site,/customNotes/);
+  assert.doesNotMatch(buildPrompt(example,clinic),/【そのほかの指定条件】/);
 });

@@ -251,7 +251,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
   .condition .remove{width:30px}
 }
   </style>
-  <script type="module" src="./site.mjs?v=20261127-12"></script>
+  <script type="module" src="./site.mjs?v=20261127-13"></script>
 </head>
 <body>
   <div class="page">
@@ -326,11 +326,6 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
             <div id="rangeBox" class="word-fields" hidden><label for="lowWords">指定範囲</label><input type="number" id="lowWords" min="1" max="5000" value="80"><span>～</span><input type="number" id="highWords" min="1" max="5000" value="120"><span>語</span></div>
             <p class="micro">語数の減点幅・例外は、独自の規定を使用します。</p>
           </fieldset>
-          <div class="field">
-            <label for="customNotes">そのほかの特別な指示 <span class="optional">任意</span></label>
-            <textarea id="customNotes" rows="3" placeholder="例：全体を１段落で記述。長所・短所の両方を説明する。" spellcheck="true" autocorrect="on" autocomplete="on" autocapitalize="sentences" writingsuggestions="true"></textarea>
-            <p class="micro">採点内容・条件を記入してください。採点基準の明示的な変更は、下の特別減点で指定します。</p>
-          </div>
         </section>
 
         <section class="panel" aria-labelledby="conditionsHeading">
