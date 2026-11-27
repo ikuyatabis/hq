@@ -77,7 +77,7 @@ el('addCondition').addEventListener('click',()=>addCondition());
 function renderConditionExamples(){
   const max=el('maxScore');
   const valid=max.validity.valid;
-  el('conditionExamplesScore').textContent=valid?'今回の満点：'+max.value+'点（5点刻みで切り下げ）':'満点を正しく入力してください。';
+  el('conditionExamplesScore').textContent=valid?'今回の満点：'+max.value+'点（５点刻みで切り下げ）':'満点を正しく入力してください。';
   const list=el('conditionExamplesList');
   list.replaceChildren();
   for(const preset of conditionPresets(valid?max.value:0)){
