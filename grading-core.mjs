@@ -9,8 +9,12 @@ export function exampleConditions(maxScore=50){
   return points>0?[{label:'長所の記述',points},{label:'短所の記述',points}]:[];
 }
 
-export function conditionPresets(){
-  const half=25, overview=10, third=15;
+export function conditionPresets(maxScore=40){
+  const max=Number(maxScore);
+  const valid=Number.isInteger(max)&&max>=1&&max<=1000;
+  const half=suggestedDeduction(max);
+  const overview=valid?Math.floor(max/20)*5:0;
+  const third=valid?Math.floor(max/15)*5:0;
   return [
     {title:'長所と短所を述べる問題',items:[{label:'長所の記述',points:half},{label:'短所の記述',points:half}]},
     {title:'理由を２つ述べる問題',items:[{label:'第１の理由の記述',points:half},{label:'第２の理由の記述',points:half}]},

@@ -63,9 +63,10 @@ test('例の入力ボタンはテスト済みの共通データを使用する',
   const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
   assert.match(html,/id="exampleConditions"[^>]*>設定例<\/button>/);
   assert.match(html,/<dialog id="conditionExamplesDialog"/);
-  assert.match(site,/conditionPresets\(\)/);
-  assert.doesNotMatch(html,/id="conditionExamplesScore"|同じ欠落に対して、特別減点と通常の内容減点を重ねないよう指示します。/);
-  assert.doesNotMatch(site,/conditionExamplesScore|５点刻みで切り下げ/);
+  assert.match(site,/conditionPresets\(valid\?max\.value:0\)/);
+  assert.match(html,/id="conditionExamplesScore"/);
+  assert.doesNotMatch(html,/同じ欠落に対して、特別減点と通常の内容減点を重ねないよう指示します。/);
+  assert.match(site,/各項目は５点刻みで切り下げ/);
   assert.match(site,/for\(const \{label,points\} of preset\.items\)addCondition\(label,points\)/);
   assert.doesNotMatch(site,/el\('conditionList'\)\.replaceChildren\(/);
   assert.doesNotMatch(site,/inp\.placeholder\s*=/);
@@ -95,7 +96,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-7"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-8"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -117,8 +118,11 @@ test('設定例は3種類、図表は概要と3項目の変化を示す',()=>{
   assert.deepEqual(presets[0].items,exampleConditions(50));
   assert.deepEqual(presets[1].items.map(x=>x.points),[25,25]);
   assert.deepEqual(presets[2].items,[{label:'図表が表す内容の説明',points:10},...['１','２','３'].map(n=>({label:'項目'+n+'「　　　　　」の変化の説明',points:15}))]);
-  for(const max of [0,30,40,75,100])assert.deepEqual(conditionPresets(max),presets);
-  assert.deepEqual(conditionPresets(),presets);
+  assert.deepEqual(conditionPresets(40).map(p=>p.items.map(x=>x.points)),[[20,20],[20,20],[10,10,10,10]]);
+  assert.deepEqual(conditionPresets(),conditionPresets(40));
+  assert.deepEqual(conditionPresets(30).map(p=>p.items.map(x=>x.points)),[[15,15],[15,15],[5,10,10,10]]);
+  assert.deepEqual(conditionPresets(100).map(p=>p.items.map(x=>x.points)),[[50,50],[50,50],[25,30,30,30]]);
+  assert(conditionPresets(0).every(p=>p.items.every(x=>x.points===0)));
 });
 
 test('分類別の内容面減点は既存の規定の点数だけを置換する',()=>{
