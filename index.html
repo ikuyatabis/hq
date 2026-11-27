@@ -264,7 +264,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
   .condition .remove{width:30px}
 }
   </style>
-  <script type="module" src="./site.mjs?v=20261128-noscore3"></script>
+  <script type="module" src="./site.mjs?v=20261128-wording1"></script>
 </head>
 <body>
   <div class="page">
@@ -283,7 +283,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
       <form id="gradingForm" novalidate autocomplete="on">
         <section class="panel" aria-labelledby="sourceHeading">
           <div class="panel-head"><h2 id="sourceHeading">問題・答案の準備</h2></div>
-          <p class="intro-note">写真・PDFでの提出が標準です。原稿を直接入力する場合だけ入力欄が表示されます。</p>
+          <p class="intro-note">写真・PDFでの提出が標準です。問題文・資料や答案を直接入力する場合だけ入力欄が表示されます。</p>
 
           <fieldset class="group">
             <legend>問題文・資料</legend>
@@ -291,7 +291,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
               <label class="choice"><input type="radio" name="problemMode" value="file" checked>写真・PDFを添付 <small>標準</small></label>
               <label class="choice"><input type="radio" name="problemMode" value="text">直接入力</label>
             </div>
-            <div id="problemFileNote" class="file-note"><span class="file-icon" aria-hidden="true">▧</span><div>採点用データをChatGPTに貼り付けた後、<strong>問題文・資料の写真またはPDF</strong>をChatGPTに添付します。</div></div>
+            <div id="problemFileNote" class="file-note"><span class="file-icon" aria-hidden="true">▧</span><div><span id="problemFileDataLabel">採点用データ</span>をChatGPTに貼り付けた後、<strong>問題文・資料の写真またはPDF</strong>をChatGPTに添付します。</div></div>
             <div id="problemTextBox" class="text-box" hidden>
               <label for="problemText">問題文・資料のテキスト</label>
               <textarea id="problemText" rows="5" placeholder="設問の指示・本文・図表の説明など" spellcheck="true" autocorrect="on" autocomplete="on" autocapitalize="sentences" writingsuggestions="true"></textarea>
@@ -304,14 +304,14 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
               <label class="choice"><input type="radio" name="answerMode" value="file" checked>写真・PDFを添付 <small>標準</small></label>
               <label class="choice"><input type="radio" name="answerMode" value="text">直接入力</label>
             </div>
-            <div id="answerFileNote" class="file-note"><span class="file-icon" aria-hidden="true">▧</span><div>採点用データをChatGPTに貼り付けた後、<strong>答案の写真またはPDF</strong>をChatGPTに添付します。</div></div>
+            <div id="answerFileNote" class="file-note"><span class="file-icon" aria-hidden="true">▧</span><div><span id="answerFileDataLabel">採点用データ</span>をChatGPTに貼り付けた後、<strong>答案の写真またはPDF</strong>をChatGPTに添付します。</div></div>
             <div id="answerTextBox" class="text-box" hidden>
               <label for="answerText">答案のテキスト</label>
               <textarea id="answerText" rows="7" placeholder="生徒の答案を原文どおりに入力" spellcheck="false" autocorrect="off" autocomplete="off" autocapitalize="none" writingsuggestions="false" data-gramm="false" data-gramm_editor="false" data-enable-grammarly="false" data-lt-active="false" data-ms-editor="false"></textarea>
               <p class="micro">機械的な参考語数：<strong id="wordPreview">０</strong>語</p>
             </div>
           </fieldset>
-          <p class="privacy-note">このWebページにファイルを保存・送信する機能はありません。写真・PDFのアップロードは<strong>ChatGPT側で１回だけ</strong>行います。氏名などの個人情報は、添付前に取り除いてください。</p>
+          <p class="privacy-note">このWebページにファイルを保存・送信する機能はありません。写真・PDFの添付は<strong>ChatGPT側で１回だけ</strong>行います。氏名などの個人情報は、添付前に取り除いてください。</p>
         </section>
 
         <section class="panel" aria-labelledby="rubricHeading">
@@ -339,14 +339,14 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
             </div>
             <div id="approxBox" class="word-fields"><label for="approxWords">目安語数</label><input type="number" id="approxWords" min="10" max="5000" step="10" value="100"><span>語程度</span></div>
             <div id="rangeBox" class="word-fields" hidden><label for="lowWords">指定範囲</label><input type="number" id="lowWords" min="1" max="5000" value="80"><span>～</span><input type="number" id="highWords" min="1" max="5000" value="120"><span>語</span></div>
-            <p class="micro" id="wordModeHint">語数の減点幅・例外は、独自の規定を使用します。</p>
+            <p class="micro" id="wordModeHint">語数の減点幅・例外には、独自の基準を適用します。</p>
           </fieldset>
         </section>
 
         <section class="panel" aria-labelledby="conditionsHeading">
           <div class="panel-head"><h2 id="conditionsHeading">減点条件を設定する</h2></div>
           <div id="scoredConditions">
-          <p class="micro conditions-note">減点幅は任意に変更できます（０点で減点なし）。<br>その他、文法・語法等の誤りは独自の基準を適用します。</p>
+          <p class="micro conditions-note">減点幅は任意に変更できます（０点で減点なし）。<br>文法・語法などの誤りには、独自の基準を適用します。</p>
           <div class="field">
             <label for="invalidAnswerPenalty">根本的な読み違いなど、設問に対する答えとして成立していない場合</label>
             <div class="suffix"><input id="invalidAnswerPenalty" type="number" min="0" max="40" step="5" value="40" required><span>点減点</span></div>
@@ -356,7 +356,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
             <div class="suffix"><input id="contentPenaltyB" type="number" min="0" max="1000" step="5" value="20" required><span>点減点（一律）</span></div>
           </div>
           <div class="field">
-            <label for="contentPenaltyC">「趣旨が不明確」「テーマとの関連が不明確」など、不明瞭な箇所を含む場合<span class="content-penalty-note">※「明らかに英文が成立していない記述」や「語彙や構文などの重大な誤りのために趣旨が不明確な記述」が含まれるものを含む</span></label>
+            <label for="contentPenaltyC">「趣旨が不明確」「テーマとの関連が不明確」など、不明瞭な箇所を含む場合<span class="content-penalty-note">※「明らかに英文が成立していない記述」や「語彙や構文などの重大な誤りのために趣旨が不明確な記述」があるものを含む</span></label>
             <div class="suffix"><input id="contentPenaltyC" type="number" min="0" max="1000" step="5" value="10" required><span>点減点（一律）</span></div>
           </div>
           <div class="field" id="contentPenaltyDField">
@@ -367,9 +367,10 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
           <div class="row-actions"><button id="addCondition" class="secondary" type="button">＋減点条件を追加</button><button id="exampleConditions" class="text-btn" type="button" aria-haspopup="dialog" aria-controls="conditionExamplesDialog">設定例</button></div>
           </div>
           <div id="unscoredConditions" hidden>
+            <p class="micro conditions-note">文法・語法などの誤りには、独自の基準を適用します。</p>
             <label class="check unscored-check"><input type="checkbox" id="feedbackinvalid" checked><span>根本的な読み違いなど、設問に対する答えとして成立していないものを指摘する</span></label>
             <label class="check unscored-check" id="feedbackBField"><input type="checkbox" id="feedbackB" checked><span>「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むものを指摘する</span></label>
-            <label class="check unscored-check"><input type="checkbox" id="feedbackC" checked><span>「趣旨が不明確」「テーマとの関連が不明確」など、不明瞭な箇所を含むものを指摘する<span class="content-penalty-note">※「明らかに英文が成立していない記述」や「語彙や構文などの重大な誤りのために趣旨が不明確な記述」が含まれるものを含む</span></span></label>
+            <label class="check unscored-check"><input type="checkbox" id="feedbackC" checked><span>「趣旨が不明確」「テーマとの関連が不明確」など、不明瞭な箇所を含むものを指摘する<span class="content-penalty-note">※「明らかに英文が成立していない記述」や「語彙や構文などの重大な誤りのために趣旨が不明確な記述」があるものを含む</span></span></label>
             <label class="check unscored-check" id="feedbackDField"><input type="checkbox" id="feedbackD" checked><span>「自明・不要なことがら」「重複したことがら」など、明らかに冗長な内容を含むものを指摘する</span></label>
             <div id="feedbackConditionList" aria-live="polite"></div>
             <div class="row-actions"><button id="addFeedbackCondition" class="secondary" type="button">＋添削条件を追加</button><button id="exampleFeedbackConditions" class="text-btn" type="button" aria-haspopup="dialog" aria-controls="conditionExamplesDialog">設定例</button></div>
@@ -381,7 +382,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
           </div>
           <dialog id="conditionExamplesDialog" aria-labelledby="conditionExamplesTitle">
             <div class="example-dialog-head"><h2 id="conditionExamplesTitle">設定例</h2><button id="closeConditionExamples" class="text-btn" type="button" aria-label="設定例を閉じる">閉じる</button></div>
-            <p class="micro" id="conditionExamplesIntro">設問で明示的に要求されている事項について、必要に応じて減点条件を設定しましょう。</p>
+            <p class="micro" id="conditionExamplesIntro">設問で明示的に要求されている事項について、必要に応じて減点条件を設定してください。</p>
             <p class="micro" id="conditionExamplesScore"></p>
             <div id="conditionExamplesList"></div>
             <p class="micro" id="conditionExamplesHint">減点幅は入力後に変更できます。設定例は既存の条件を消さずに追加します。</p>
