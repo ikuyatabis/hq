@@ -171,6 +171,8 @@ footer .footer-home-link:focus-visible{outline:2px solid #197fbc;outline-offset:
 .group.compact{margin:0 0 19px}
 .intro-note{font-size:.84rem;color:var(--sub);margin:0 0 12px}
 .micro{font-size:.84rem;color:var(--sub);margin:8px 0}
+#conditionsHeading{margin-bottom:2px}
+.conditions-note{margin:0 0 22px;line-height:1.5}
 .privacy-note{font-size:.84rem;color:var(--sub);margin:8px 0 0}
 .choice small{
   font-size:.81em;color:var(--sub);font-weight:400;
@@ -330,7 +332,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
 
         <section class="panel" aria-labelledby="conditionsHeading">
           <div class="panel-head"><h2 id="conditionsHeading">特別減点を設定する</h2></div>
-          <p class="micro">各項目は任意に変更できます（０点で減点なし）。</p>
+          <p class="micro conditions-note">各項目は任意に変更できます（０点で減点なし）。</p>
           <div class="field">
             <label for="invalidAnswerPenalty">根本的な読み違いなど、設問に対する答えとして成立していない場合</label>
             <div class="suffix"><input id="invalidAnswerPenalty" type="number" min="0" max="40" step="5" value="40" required><span>点減点</span></div>
