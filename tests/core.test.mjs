@@ -98,7 +98,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-15"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-16"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -204,4 +204,12 @@ test('課題の遂行の説明はその分類を選んだ場合だけ表示す�
   assert.match(html,/id="taskKindNote" class="micro" hidden/);
   assert.match(site,/el\('taskKindNote'\)\.hidden=el\('kind'\)\.value!=='task'/);
   assert.match(site,/syncContentPenalties\(\);syncTaskKindNote\(\)/);
+});
+
+test('追加の減点条件は追加・削除時に全角の連番を振り直す',()=>{
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  assert.match(site,/const number=fullwidthDigits\(index\+1\)/);
+  assert.match(site,/textContent='未記載の場合に減点する項目'\+number/);
+  assert.match(site,/group\.remove\(\);renumberConditions\(\)/);
+  assert.match(site,/append\(group\);syncSuggestedDeduction\(\);renumberConditions\(\)/);
 });
