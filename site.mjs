@@ -96,7 +96,11 @@ el('gradingForm').addEventListener('submit',async e=>{
     if(!report(problem,problem.value.trim()?'':'問題文・資料を入力してください。'))return;
   }
   if(!report(el('maxScore')))return;
-  if(!report(el('invalidAnswerPenalty')))return;
+  const penalty=el('invalidAnswerPenalty');
+  // Five-point spinner; direct entry accepts any integer within the maximum.
+  if(!penalty.validity.badInput&&/^\d+$/.test(penalty.value)&&Number(penalty.value)<=Number(el('maxScore').value)){
+    penalty.setCustomValidity('');
+  }else if(!report(penalty,'減点幅は0～'+el('maxScore').value+'の整数で入力してください。'))return;
   if(selected('wordMode')==='approx'){
     const n=el('approxWords');
     // Keep the existing ten-word spinner, but accept all integer values allowed by the grading core.
