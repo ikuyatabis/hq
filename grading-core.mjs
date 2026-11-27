@@ -107,20 +107,23 @@ export function contentPenaltyDefaults(kind,maxScore=40){
   const valid=Number.isInteger(max)&&max>=1&&max<=1000;
   const half=suggestedDeduction(max);
   const third=valid?Math.floor(max/15)*5:0;
-  return kind==='chart'?{B:third,C:third}:{B:half,C:third,D:third};
+  return kind==='chart'?{C:third}:{B:half,C:third,D:third};
 }
 
 // Replace the existing rubric amount, not its conditions or scope.
 export function applyContentPenalties(rubric,kind,overrides){
-  if(overrides==null)return rubric;
-  const defaults=contentPenaltyDefaults(kind);
   let result=rubric;
+  if(kind==='chart'){
+    result=result.replace(/図表と矛盾する明白な誤認は－\d+点。/g,'図表の明白な誤認は該当する個別項目の誤りとして評価し，独立した一律減点は行わない。同一原因の減点は重ねない。');
+  }
+  if(overrides==null)return result;
+  const defaults=contentPenaltyDefaults(kind);
   for(const key of Object.keys(defaults)){
     const raw=String(overrides[key]??'').trim();
     if(!/^\d+$/.test(raw)||Number(raw)>1000)throw new Error('内容面の減点幅は0～1000の整数で入力してください。');
     const points=Number(raw);
     const pattern=kind==='chart'
-      ?(key==='B'?/(図表と矛盾する明白な誤認は－)\d+(点)/g:/(趣旨不明確・テーマとの関連不明確は一律－)\d+(点)/g)
+      ?/(趣旨不明確・テーマとの関連不明確は一律－)\d+(点)/g
       :new RegExp('(^'+key+'：[^\\n]*?一律－)\\d+(点)','gm');
     if([...result.matchAll(pattern)].length!==1)throw new Error('分類別の内容面減点基準を確認できません。採点用データの生成を停止します。');
     result=result.replace(pattern,(_,prefix,suffix)=>prefix+points+suffix+(points===0?'（この項目による減点なし）':''));

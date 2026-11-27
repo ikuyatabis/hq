@@ -44,7 +44,10 @@ for(const outputMode of ['word','both','screen']){
 test('全分類で本体の現行採点指示が引き継がれる',()=>{
   for(const kind of ['opinion','chart','task']){
     const p=buildPrompt({...fields,kind,outputMode:'word'},clinic);
-    assert(p.includes(clinic.rubrics[kind]));
+    if(kind==='chart'){
+      assert.doesNotMatch(p,/図表と矛盾する明白な誤認は－\d+点/);
+      assert.match(p,/独立した一律減点は行わない/);
+    }else assert(p.includes(clinic.rubrics[kind]));
   }
 });
 test('本体の語数照合または例外処理が欠落したら生成前に停止する',()=>{
@@ -56,8 +59,9 @@ test('本体の語数照合または例外処理が欠落したら生成前に�
 test('現行診療所の分類別基準に教員指定の減点幅を反映する',()=>{
   for(const kind of ['opinion','chart','task']){
     const defaults=contentPenaltyDefaults(kind);
-    assert.equal(applyContentPenalties(clinic.rubrics[kind],kind,defaults),clinic.rubrics[kind]);
-    const overrides=kind==='chart'?{B:15,C:5}:{B:15,C:5,D:0};
+    if(kind==='chart')assert.doesNotMatch(applyContentPenalties(clinic.rubrics[kind],kind,defaults),/図表と矛盾する明白な誤認は－\d+点/);
+    else assert.equal(applyContentPenalties(clinic.rubrics[kind],kind,defaults),clinic.rubrics[kind]);
+    const overrides=kind==='chart'?{C:5}:{B:15,C:5,D:0};
     const changed=applyContentPenalties(clinic.rubrics[kind],kind,overrides);
     const prompt=buildPrompt({...fields,kind,outputMode:'screen',contentPenalties:overrides},clinic);
     assert(prompt.includes(kind==='chart'?changed.replace('表・グラフの趣旨を根本的に取り違えた場合は内容面の減点Cを30点とし，最終得点を0点とする。','表・グラフの趣旨を根本的に取り違え，設問への答えとして成立していない場合は，今回の最優先の特別減点（内容面－50点）を適用する。'):changed));
@@ -73,8 +77,9 @@ test('満点60点の連動減点が現行基準に反映される',()=>{
     assert(prompt.includes('今回の満点は60点'));
     assert.match(changed,kind==='chart'?/趣旨不明確・テーマとの関連不明確は一律－20点/:/^B：[^\n]*一律－30点/m);
     if(kind==='chart'){
-      assert.match(changed,/図表と矛盾する明白な誤認は－20点/);
-      assert.match(prompt,/図表と矛盾する明白な誤認は－20点/);
+      assert.doesNotMatch(changed,/図表と矛盾する明白な誤認は－\d+点/);
+      assert.doesNotMatch(prompt,/図表と矛盾する明白な誤認は－\d+点/);
+      assert.match(prompt,/独立した一律減点は行わない/);
     }else{
       assert.match(changed,/^C：[^\n]*一律－20点/m);
       assert.match(changed,/^D：[^\n]*一律－20点/m);

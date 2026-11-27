@@ -98,7 +98,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-16"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-17"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -130,13 +130,13 @@ test('設定例は3種類、図表は概要と3項目の変化を示す',()=>{
 test('分類別の内容面減点は既存の規定の点数だけを置換する',()=>{
   assert.deepEqual(contentPenaltyDefaults('opinion'),{B:20,C:10,D:10});
   assert.deepEqual(contentPenaltyDefaults('task'),{B:20,C:10,D:10});
-  assert.deepEqual(contentPenaltyDefaults('chart'),{B:10,C:10});
+  assert.deepEqual(contentPenaltyDefaults('chart'),{C:10});
   const original='A：要求漏れは－20点。\nB：重大な矛盾は一律－20点。軽微な不足は不問。\nC：趣旨不明確は一律－10点。\nD：重大な冗長さは一律－10点。';
   const overrides={B:15,C:5,D:0};
   const changed=applyContentPenalties(original,'opinion',overrides);
   assert.equal(changed,'A：要求漏れは－20点。\nB：重大な矛盾は一律－15点。軽微な不足は不問。\nC：趣旨不明確は一律－5点。\nD：重大な冗長さは一律－0点（この項目による減点なし）。');
   const chart='内容上の著しい不整合は一律－5点。\n趣旨不明確・テーマとの関連不明確は一律－10点。図表と矛盾する明白な誤認は－10点。';
-  assert.equal(applyContentPenalties(chart,'chart',{B:15,C:5}),'内容上の著しい不整合は一律－5点。\n趣旨不明確・テーマとの関連不明確は一律－5点。図表と矛盾する明白な誤認は－15点。');
+  assert.equal(applyContentPenalties(chart,'chart',{C:5}),'内容上の著しい不整合は一律－5点。\n趣旨不明確・テーマとの関連不明確は一律－5点。図表の明白な誤認は該当する個別項目の誤りとして評価し，独立した一律減点は行わない。同一原因の減点は重ねない。');
   assert.throws(()=>applyContentPenalties(original,'opinion',{B:-1,C:5,D:0}),/整数/);
   assert.throws(()=>applyContentPenalties(original,'opinion',{B:15,C:'',D:0}),/整数/);
   assert.throws(()=>applyContentPenalties('基準変更','opinion',overrides),/生成を停止/);
@@ -168,7 +168,7 @@ test('満点は5点刻みのスピナーと任意の整数入力を両立する'
 test('分類別減点の初期値は満点の半分・3分の1を5点刻みで切り下げる',()=>{
   for(const [max,half,third] of [[5,0,0],[10,5,0],[15,5,5],[30,15,10],[40,20,10],[43,20,10],[45,20,15],[50,25,15],[60,30,20],[75,35,25],[100,50,30]]){
     for(const kind of ['opinion','task'])assert.deepEqual(contentPenaltyDefaults(kind,max),{B:half,C:third,D:third});
-    assert.deepEqual(contentPenaltyDefaults('chart',max),{B:third,C:third});
+    assert.deepEqual(contentPenaltyDefaults('chart',max),{C:third});
     assert.deepEqual(contentPenaltyDefaults('opinion',String(max)),{B:half,C:third,D:third});
   }
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
@@ -180,7 +180,7 @@ test('減点条件の3項目は指定の詳細文言を表示する',()=>{
   const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
   for(const label of ["「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの","「趣旨が不明確」「テーマとの関連が不明確」など、不明瞭な箇所を含むもの","※「明らかに英文が成立していない記述」や「語彙や構文などの重大な誤りのために趣旨が不明確な記述」が含まれるものを含む","「自明・不要なことがら」「重複したことがら」など、明らかに冗長な内容を含むもの"])assert(html.includes(label));
-  assert(site.includes("「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの"));
+  assert.match(site,/el\('contentPenaltyBField'\)\.hidden=chart/);
 });
 
 test('追加の減点条件は最初から2行、未使用の空欄は採点対象外',()=>{
@@ -212,4 +212,13 @@ test('追加の減点条件は追加・削除時に全角の連番を振り直�
   assert.match(site,/textContent='未記載の場合に減点する項目'\+number/);
   assert.match(site,/group\.remove\(\);renumberConditions\(\)/);
   assert.match(site,/append\(group\);syncSuggestedDeduction\(\);renumberConditions\(\)/);
+});
+
+test('図表では明白な誤認の一律減点を廃止し、個別項目で評価する',()=>{
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  assert.match(site,/el\('contentPenaltyBField'\)\.hidden=chart/);
+  assert.match(site,/el\('contentPenaltyB'\)\.disabled=chart/);
+  const rule='図表と矛盾する明白な誤認は－10点。';
+  assert.doesNotMatch(applyContentPenalties(rule,'chart'),/－10点/);
+  assert.match(applyContentPenalties(rule,'chart'),/独立した一律減点は行わない/);
 });

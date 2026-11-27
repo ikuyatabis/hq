@@ -1,4 +1,4 @@
-import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-15';
+import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-17';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -59,7 +59,8 @@ function syncContentPenalties(){
   const chart=kind==='chart';
   const max=el('maxScore');
   const defaults=contentPenaltyDefaults(kind,validMaxScore(max)?max.value:40);
-  el('contentPenaltyBLabel').textContent=chart?'図表と矛盾する明白な誤認':'「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの';
+  el('contentPenaltyBField').hidden=chart;
+  el('contentPenaltyB').disabled=chart;
   el('contentPenaltyDField').hidden=chart;
   el('contentPenaltyD').disabled=chart;
   for(const [key,value] of Object.entries(defaults)){

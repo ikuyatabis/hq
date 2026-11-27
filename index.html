@@ -253,7 +253,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
   .condition .remove{width:30px}
 }
   </style>
-  <script type="module" src="./site.mjs?v=20261127-16"></script>
+  <script type="module" src="./site.mjs?v=20261127-17"></script>
 </head>
 <body>
   <div class="page">
@@ -338,7 +338,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
             <label for="invalidAnswerPenalty">根本的な読み違いなど、設問に対する答えとして成立していない場合</label>
             <div class="suffix"><input id="invalidAnswerPenalty" type="number" min="0" max="40" step="5" value="40" required><span>点減点</span></div>
           </div>
-          <div class="field">
+          <div class="field" id="contentPenaltyBField">
             <label id="contentPenaltyBLabel" for="contentPenaltyB">「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの</label>
             <div class="suffix"><input id="contentPenaltyB" type="number" min="0" max="1000" step="5" value="20" required><span>点減点（一律）</span></div>
           </div>
