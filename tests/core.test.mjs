@@ -82,7 +82,10 @@ test('指示文の個別表示は設けず、出力形式の既定値はWordと�
 
 test('特別減点の減点幅の例示は半角数字と入力値と同じ色を使用する',()=>{
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
   const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
   assert.match(site,/point\.placeholder='25'/);
-  assert.match(css,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
+  assert.doesNotMatch(site,/point\.placeholder='２５'/);
+  for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-2"/);
 });
