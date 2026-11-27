@@ -98,7 +98,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-17"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-18"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -189,12 +189,18 @@ test('追加の減点条件は最初から2行、未使用の空欄は採点対�
   assert.deepEqual(parseConditions([{label:'',points:''},{label:'',points:''}]),[]);
 });
 
-test('そのほかの特別な指示の入力欄と採点指示への出力を廃止する',()=>{
+test('そのほかの特別な指示は減点条件の下に配置し、入力時だけ採点指示に反映する',()=>{
   const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
-  assert.doesNotMatch(html,/customNotes|そのほかの特別な指示/);
-  assert.doesNotMatch(site,/customNotes/);
-  assert.doesNotMatch(buildPrompt(example,clinic),/【そのほかの指定条件】/);
+  assert(html.indexOf('id="customNotesField"')>html.indexOf('id="addCondition"'));
+  assert.match(html,/ここまでの項目でカバーできなかった内容を入力してください。/);
+  assert.match(site,/customNotes:el\('customNotes'\)\.value/);
+  for(const customNotes of ['', '   '])assert.doesNotMatch(buildPrompt({...example,customNotes},clinic),/【そのほかの特別な指示】/);
+  const note='１段落で記述すること。違反は－５点。';
+  const prompt=buildPrompt({...example,customNotes:note},clinic);
+  assert(prompt.includes('【そのほかの特別な指示】'));
+  assert(prompt.includes(note));
+  assert(prompt.includes('同一原因を重複して減点したりせず'));
 });
 
 test('課題の遂行の説明はその分類を選んだ場合だけ表示する',()=>{

@@ -149,6 +149,7 @@ export function buildPrompt(fields,clinic){
   if(!['word','both','screen'].includes(fields.outputMode))throw new Error('出力形式を選んでください。');
   const fullName={opinion:'意見の表明',chart:'図表の説明',task:'課題の遂行'}[fields.kind];
   const output={word:'Word（.docx）のみ',both:'Word（.docx）＋PDF（.pdf）',screen:'画面表示のみ'}[fields.outputMode];
+  const customNotes=String(fields.customNotes??'').trim();
   const ruleText=items.length?items.map((x,i)=>`${i+1}. 「${x.label}」が実質的に欠けている場合，内容面で－${x.points}点。`).join('\n'):'追加の特別減点なし。';
   const sourceText=(mode,text,description)=>mode==='file'?`${description}の写真・PDFを，この採点用データと一緒にChatGPTへ添付する予定（未添付なら開始を保留）。`:`${description}は次のテキストのみを資料とする。\n${JSON.stringify(text.trim())}`;
   const instructions=[
@@ -160,6 +161,7 @@ export function buildPrompt(fields,clinic){
     ...(fields.contentPenalties==null?[]:['分類別の内容面減点については，後掲の分類別採点指示に記載された教員指定の減点幅を適用する。各項目は該当箇所の数によらず一律に扱い，0点指定はその項目による減点なしとする。同一原因による他の項目・英語面との二重減点を禁止する。改善例の参考得点にも同じ指定を適用する。']),
     ruleText,
     '上記の最優先の特別減点および分類別の内容面減点を除き，追加した欠落条件は指定条件の欠落に限って適用し，勝手に新しい必須条件を追加しない。同じ欠落を後述の通常の内容面の減点で重複して引かない。別々の項目を欠いた場合はそれぞれ適用し，減点合計を得点計算に反映する。追加の一般的な内容評価も，後述の採点基準で非重複のものだけを適用する。',
+    ...(customNotes?['【そのほかの特別な指示】','以下は教員による補足指示。既に設定された満点・減点幅・条件を勝手に変更したり，同一原因を重複して減点したりせず，明示された追加の指示を適用する。明示的に指定された追加条件・減点は反映する。',customNotes]:[]),
     '【今回の語数指定】',w,...clinic.wordInstructions,
     '【判定・表示の注意】',
     '採点を保留する場合は得点を表示しない。採点と計算の照合を完了してから，文書の先頭行に「得点：〈今回の得点〉／'+M+'点」を表示し，空行１行の後に「１．採点結果・減点内訳」とする。表の減点内訳・得点と本文・改善例の参考得点を必ず整合させる。',
