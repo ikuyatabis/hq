@@ -8,7 +8,7 @@
 - 診療所の分類（意見／図表／課題遂行）を選択し，今回の満点を数値指定
 - セミオーダーの条件（例：長所なし −25点，短所なし −25点）を追加・削除
 - 出力形式は **Word（標準）→ Word＋PDF → 画面表示のみ** の順。PDFのみは選択肢に含めない
-- 基本採点指示・出力指示はページ表示時に `english-writing-feedback/main/misc/index.html` から取得して解析する。取得・解析失敗時は採点用データの作成を停止（古い基準の黙用なし）
+- 基本採点指示・出力指示は本体の `misc/index.html` を正本とし，本体側の同期ワークフローが検証済みの `clinic-rules.json` を更新する。公開ページは同じサイトのJSONだけを読み込み，取得・解析失敗時は採点用データの作成を停止する。
 - 採点開始時，採点指示をクリップボードにコピーしてChatGPTを別タブで開く（既存の診療所と同様）
 - 生徒答案などのデータをこのWebページのサーバーに保存しない。フォーム内容はローカルの閲覧ページにのみ存在
 
@@ -18,7 +18,7 @@
 
 移行後の公開先リポジトリは `ikuyatabis/hq` です。画面のサイト名は「秘密基地」（Secret Headquarters）です。
 
-1. `main` ブランチのルートに `index.html`, `styles.css`, `grading-core.mjs`, `site.mjs`, `.nojekyll`, `README.md` を配置する。
+1. `main` ブランチのルートに `index.html`, `styles.css`, `grading-core.mjs`, `site.mjs`, `clinic-rules.json`, `.nojekyll`, `README.md` を配置する。
 2. リポジトリの **Settings → Pages → Build and deployment** で **Deploy from a branch → main / (root)** を選び，Saveする。
 3. GitHub Pagesのデプロイが成功したら， `https://ikuyatabis.github.io/hq/` にアクセスする。
 
@@ -26,7 +26,7 @@
 
 ## 更新方式とメンテナンス
 
-基準文はGitHubの現行本体から毎回取得しますが，サイトの入力フォーム・語数計算のコード自体はこのリポジトリにあります。本体側のHTML構造や語数算定コードが変わる場合は，互換性確認と必要な同期が別途必要です。HTMLに基準の解析ができなくなった場合は，安全のため採点処理を止めます。
+基準文は本体側の同期ワークフローから取得し，最後に検証に成功した版を `clinic-rules.json` に保存します。同期に失敗した場合は既存の版を維持し，GitHub Actionsの失敗として記録します（公開ページが常に本体の現行版であるとは限りません）。入力フォーム・任意配点・語数計算などの独自コードはこのリポジトリに残ります。本体側の仕様変更時は互換性を検証します。
 
 ## QA
 
