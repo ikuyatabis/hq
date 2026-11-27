@@ -9,6 +9,19 @@ export function exampleConditions(maxScore=50){
   return points>0?[{label:'長所の記述',points},{label:'短所の記述',points}]:[];
 }
 
+export function conditionPresets(maxScore=50){
+  const max=Number(maxScore);
+  const valid=Number.isInteger(max)&&max>=1&&max<=1000;
+  const half=suggestedDeduction(max);
+  const overview=valid?Math.floor(max/25)*5:0;
+  const third=valid?Math.floor(max/15)*5:0;
+  return [
+    {title:'長所と短所を述べる問題',items:[{label:'長所の記述',points:half},{label:'短所の記述',points:half}]},
+    {title:'理由を２つ述べる問題',items:[{label:'第１の理由の記述',points:half},{label:'第２の理由の記述',points:half}]},
+    {title:'図表を説明する問題',items:[{label:'図表が表す内容の説明',points:overview},...['１','２','３'].map(n=>({label:'項目'+n+'「　　　　　」の変化の説明',points:third}))]}
+  ];
+}
+
 function readJoinedStrings(source, regex, label) {
   const match = source.match(regex);
   if (!match) throw new Error(`現行の診療所から「${label}」を取得できません。仕様が変更された可能性があります。`);

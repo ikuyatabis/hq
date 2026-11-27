@@ -1,4 +1,4 @@
-import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,exampleConditions,suggestedDeduction} from './grading-core.mjs?v=20261127-3';
+import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction} from './grading-core.mjs?v=20261127-4';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -54,9 +54,7 @@ function syncInvalidAnswerPenalty(){
 function syncSuggestedDeduction(){
   const points=suggestedDeduction(el('maxScore').value);
   for(const input of document.querySelectorAll('.condition-points'))input.placeholder=points>0?String(points):'';
-  const example=el('exampleConditions');
-  example.disabled=points===0;
-  example.title=points===0?'満点が10点未満、または無効な場合は、減点幅を個別に入力してください。':'';
+  if(el('conditionExamplesDialog').open)renderConditionExamples();
 }
 el('maxScore').addEventListener('input',()=>{syncInvalidAnswerPenalty();syncSuggestedDeduction();});
 syncInvalidAnswerPenalty();
@@ -66,7 +64,7 @@ function addCondition(label='',points=''){
   const group=document.createElement('div');group.className='condition';
   const a=document.createElement('div');
   const la=document.createElement('label');la.textContent='未記載の場合に減点する項目';
-  const inp=document.createElement('input');inp.spellcheck=true;inp.setAttribute('autocorrect','on');inp.setAttribute('autocomplete','on');inp.setAttribute('autocapitalize','sentences');inp.setAttribute('writingsuggestions','true');inp.className='condition-label';inp.type='text';inp.placeholder='例：項目＿＿の記述';inp.value=label;la.appendChild(inp);a.appendChild(la);
+  const inp=document.createElement('input');inp.spellcheck=true;inp.setAttribute('autocorrect','on');inp.setAttribute('autocomplete','on');inp.setAttribute('autocapitalize','sentences');inp.setAttribute('writingsuggestions','true');inp.className='condition-label';inp.type='text';inp.value=label;la.appendChild(inp);a.appendChild(la);
   const b=document.createElement('div');
   const lb=document.createElement('label');lb.textContent='減点幅';
   const p=document.createElement('div');p.className='points';
@@ -76,11 +74,33 @@ function addCondition(label='',points=''){
   group.append(a,b,remove);el('conditionList').append(group);syncSuggestedDeduction();
 }
 el('addCondition').addEventListener('click',()=>addCondition());
+function renderConditionExamples(){
+  const max=el('maxScore');
+  const valid=max.validity.valid;
+  el('conditionExamplesScore').textContent=valid?'今回の満点：'+max.value+'点（5点刻みで切り下げ）':'満点を正しく入力してください。';
+  const list=el('conditionExamplesList');
+  list.replaceChildren();
+  for(const preset of conditionPresets(valid?max.value:0)){
+    const section=document.createElement('section');section.className='example-preset';
+    const title=document.createElement('h3');title.textContent=preset.title;
+    const items=document.createElement('ul');
+    for(const {label,points} of preset.items){
+      const row=document.createElement('li'),name=document.createElement('span'),score=document.createElement('span');
+      name.textContent=label;score.textContent=points>0?'−'+points+'点':'個別設定';row.append(name,score);items.appendChild(row);
+    }
+    const apply=document.createElement('button');apply.type='button';apply.className='secondary';apply.textContent='この設定例を入力';
+    apply.disabled=!valid||preset.items.some(item=>item.points<1);
+    apply.addEventListener('click',()=>{
+      el('conditionExamplesDialog').close();
+      for(const {label,points} of preset.items)addCondition(label,points);
+    });
+    section.append(title,items,apply);list.appendChild(section);
+  }
+}
 el('exampleConditions').addEventListener('click',()=>{
-  const examples=exampleConditions(el('maxScore').value);
-  if(!examples.length)return;
-  el('conditionList').replaceChildren();for(const {label,points} of examples)addCondition(label,points);
+  renderConditionExamples();el('conditionExamplesDialog').showModal();
 });
+el('closeConditionExamples').addEventListener('click',()=>el('conditionExamplesDialog').close());
 
 function formData(){
   const conditions=[...document.querySelectorAll('.condition')].map(row=>({label:row.querySelector('.condition-label').value,points:row.querySelector('.condition-points').value}));

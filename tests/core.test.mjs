@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import fs from 'node:fs';import {parseClinicSource,wordRule,parseConditions,buildPrompt,countWords,exampleConditions,suggestedDeduction} from '../grading-core.mjs';
+import fs from 'node:fs';import {parseClinicSource,wordRule,parseConditions,buildPrompt,countWords,exampleConditions,suggestedDeduction,conditionPresets} from '../grading-core.mjs';
 
 const data=`const COMMON=["【最終回答の構成：３部構成】","得点：〈最終得点〉","共通の採点指示"].join("\\n");\n`+
 `const RUBRIC={opinion:["意見採点"].join("\\n"),chart:["図表採点"].join("\\n"),task:["課題採点"].join("\\n")};\n`+
@@ -60,8 +60,13 @@ test('サイト名称は秘密基地，ルートで動く相対パスを使用',
 
 test('例の入力ボタンはテスト済みの共通データを使用する',()=>{
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
-  assert.match(site,/const examples=exampleConditions\(el\('maxScore'\)\.value\)/);
-  assert.match(site,/for\(const \{label,points\} of examples\)addCondition\(label,points\)/);
+  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  assert.match(html,/id="exampleConditions"[^>]*>設定例<\/button>/);
+  assert.match(html,/<dialog id="conditionExamplesDialog"/);
+  assert.match(site,/conditionPresets\(valid\?max\.value:0\)/);
+  assert.match(site,/for\(const \{label,points\} of preset\.items\)addCondition\(label,points\)/);
+  assert.doesNotMatch(site,/el\('conditionList'\)\.replaceChildren\(/);
+  assert.doesNotMatch(site,/inp\.placeholder\s*=/);
   assert.deepEqual(exampleConditions(),[{label:'長所の記述',points:25},{label:'短所の記述',points:25}]);
 });
 test('目安語数の下限と10語刻みはHTMLと生成側で一致する',()=>{
@@ -88,7 +93,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-3"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-4"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -102,4 +107,14 @@ test('満点の半分を5点刻みで切り下げ、例示にも使用する',()
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
   assert.match(site,/syncInvalidAnswerPenalty\(\);syncSuggestedDeduction\(\)/);
   assert.match(site,/append\(group\);syncSuggestedDeduction\(\)/);
+});
+
+test('設定例は3種類、図表は概要と3項目の変化を示す',()=>{
+  const presets=conditionPresets(50);
+  assert.deepEqual(presets.map(p=>p.title),['長所と短所を述べる問題','理由を２つ述べる問題','図表を説明する問題']);
+  assert.deepEqual(presets[0].items,exampleConditions(50));
+  assert.deepEqual(presets[1].items.map(x=>x.points),[25,25]);
+  assert.deepEqual(presets[2].items,[{label:'図表が表す内容の説明',points:10},...['１','２','３'].map(n=>({label:'項目'+n+'「　　　　　」の変化の説明',points:15}))]);
+  assert.deepEqual(conditionPresets(40).map(p=>p.items.map(x=>x.points)),[[20,20],[20,20],[5,10,10,10]]);
+  assert(conditionPresets(0).every(p=>p.items.every(x=>x.points===0)));
 });
