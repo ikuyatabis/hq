@@ -1,4 +1,4 @@
-import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-18';
+import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-sync1';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -18,11 +18,13 @@ function showClinicStatus(message,type='loading'){
 async function loadClinic(){
   showClinicStatus('最新の基準を読み込み中です…');clinic=null;
   try{
-    const r=await fetch(CLINIC_URL,{cache:'no-store'});
+    const r=await fetch(CLINIC_SNAPSHOT_URL,{cache:'no-store'});
     if(!r.ok)throw new Error('HTTP '+r.status);
-    clinic=parseClinicSource(await r.text());
+    const snapshot=await r.json();
+    clinic=parseClinicSnapshot(snapshot);
     const time=new Intl.DateTimeFormat('ja-JP-u-nu-latn',{timeZone:'Asia/Tokyo',hour:'2-digit',minute:'2-digit'}).format(new Date());
-    showClinicStatus('本体の現行mainを取得済み（'+time+'確認）','ready');
+    showClinicStatus('本体から同期した基準を取得済み（'+time+'確認）','ready');
+    el('clinicStatusText').title='正本のファイル版：'+snapshot.sourceBlob.slice(0,12);
   }catch(e){
     showClinicStatus('基準を取得できません：'+e.message+'。接続を確認して再取得してください。','error');
   }
