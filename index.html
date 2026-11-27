@@ -315,6 +315,11 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
 
         <section class="panel" aria-labelledby="conditionsHeading">
           <div class="panel-head"><h2 id="conditionsHeading">特別減点を設定する</h2></div>
+          <div class="field">
+            <label for="invalidAnswerPenalty">根本的な読み違いなど、設問に対する答えとして成立していない場合</label>
+            <div class="suffix"><input id="invalidAnswerPenalty" type="number" min="0" max="50" step="1" value="50" required><span>点減点</span></div>
+            <p class="micro">初期値は今回の満点です。任意に変更できます。</p>
+          </div>
           <p class="intro-note">「書かれていなければ−○点」という条件を、必要な数だけ設定できます。通常の文法・語法等は独自の基準を適用します。</p>
           <div id="conditionList" aria-live="polite"></div>
           <div class="row-actions"><button id="addCondition" class="secondary" type="button">＋ 条件を追加</button><button id="exampleConditions" class="text-btn" type="button">長所・短所の例を入力</button></div>
