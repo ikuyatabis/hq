@@ -1,5 +1,7 @@
-// 純粋関数。採点内容は常に持ち込み診療所（main）の原文から抽出する。
+// 純粋関数。採点基準の正本は持ち込み診療所。同期時に抽出し，公開サイトではローカルの同期済みデータを読む。
+// 正本URLは開発・同期用。ブラウザはこのURLから取得しない。
 export const CLINIC_URL = 'https://raw.githubusercontent.com/ikuyatabis/english-writing-feedback/main/misc/index.html';
+export const CLINIC_SNAPSHOT_URL = './clinic-rules.json';
 export function suggestedDeduction(maxScore){
   const max=Number(maxScore);
   return Number.isInteger(max)&&max>=1&&max<=1000?Math.floor(max/10)*5:0;
@@ -68,6 +70,17 @@ export function parseClinicSource(source) {
     findQuotedString(source,'語数は生徒が実際に書いた英語の解答部分のみを空白区切りで数え')
   ];
   return {common,rubrics,exportTexts,wordInstructions};
+}
+
+export function parseClinicSnapshot(snapshot) {
+  const required=(x)=>typeof x==='string'&&x.trim().length>0;
+  if(snapshot?.schemaVersion!==1||!(/^[a-f0-9]{40}$/.test(snapshot.sourceBlob||'')))throw new Error('同期済み採点基準のバージョン情報が不正です。');
+  const c=snapshot.clinic;
+  if(!required(c?.common)||!c.common.includes('【最終回答の構成：３部構成】')||!c.common.includes('得点：〈最終得点〉')||
+     !['opinion','chart','task'].every(k=>required(c?.rubrics?.[k]))||
+     !['core','word','pdf','prose','hold','failure'].every(k=>required(c?.exportTexts?.[k]))||
+     !Array.isArray(c?.wordInstructions)||c.wordInstructions.length!==3||!c.wordInstructions.every(required))throw new Error('同期済み採点基準の必須項目が不足しています。');
+  return c;
 }
 
 export function wordRule({mode, approx,low,high}) {
