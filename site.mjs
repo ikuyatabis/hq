@@ -44,6 +44,16 @@ document.querySelectorAll('input[name="wordMode"]').forEach(n=>n.addEventListene
 el('gradingForm').addEventListener('input',e=>{if(typeof e.target.setCustomValidity==='function')e.target.setCustomValidity('');});
 el('answerText').addEventListener('input',()=>{el('wordPreview').textContent=fullwidthDigits(countWords(el('answerText').value).toLocaleString('ja-JP'));});
 
+function syncInvalidAnswerPenalty(){
+  const max=el('maxScore'), penalty=el('invalidAnswerPenalty');
+  if(!max.validity.valid)return;
+  penalty.max=max.value;
+  penalty.value=max.value;
+  penalty.setCustomValidity('');
+}
+el('maxScore').addEventListener('input',syncInvalidAnswerPenalty);
+syncInvalidAnswerPenalty();
+
 function addCondition(label='',points=''){
   const group=document.createElement('div');group.className='condition';
   const a=document.createElement('div');
@@ -64,7 +74,7 @@ el('exampleConditions').addEventListener('click',()=>{
 
 function formData(){
   const conditions=[...document.querySelectorAll('.condition')].map(row=>({label:row.querySelector('.condition-label').value,points:row.querySelector('.condition-points').value}));
-  return {kind:el('kind').value,maxScore:el('maxScore').value,problemMode:selected('problemMode'),answerMode:selected('answerMode'),problemText:el('problemText').value,answerText:el('answerText').value,word:{mode:selected('wordMode'),approx:el('approxWords').value,low:el('lowWords').value,high:el('highWords').value},customNotes:el('customNotes').value,conditions,outputMode:selected('outputMode')};
+  return {kind:el('kind').value,maxScore:el('maxScore').value,invalidAnswerPenalty:el('invalidAnswerPenalty').value,problemMode:selected('problemMode'),answerMode:selected('answerMode'),problemText:el('problemText').value,answerText:el('answerText').value,word:{mode:selected('wordMode'),approx:el('approxWords').value,low:el('lowWords').value,high:el('highWords').value},customNotes:el('customNotes').value,conditions,outputMode:selected('outputMode')};
 }
 
 async function copyText(s){
@@ -86,6 +96,7 @@ el('gradingForm').addEventListener('submit',async e=>{
     if(!report(problem,problem.value.trim()?'':'問題文・資料を入力してください。'))return;
   }
   if(!report(el('maxScore')))return;
+  if(!report(el('invalidAnswerPenalty')))return;
   if(selected('wordMode')==='approx'){
     const n=el('approxWords');
     // Keep the existing ten-word spinner, but accept all integer values allowed by the grading core.
