@@ -176,6 +176,8 @@ footer .footer-home-link:focus-visible{outline:2px solid #197fbc;outline-offset:
 .content-penalty-note{display:block;font-family:var(--font-sans);font-size:.84rem;font-weight:400;color:var(--sub);margin-top:3px;line-height:1.5}
 #conditionsHeading{margin-bottom:2px}
 .conditions-note{margin:0 0 22px;line-height:1.5}
+#scoredConditions{display:contents}
+#scoredConditions[hidden]+#customNotesField{border-top:0;padding-top:0;margin-top:0}
 .privacy-note{font-size:.84rem;color:var(--sub);margin:8px 0 0}
 .choice small{
   font-size:.81em;color:var(--sub);font-weight:400;
@@ -255,7 +257,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
   .condition .remove{width:30px}
 }
   </style>
-  <script type="module" src="./site.mjs?v=20261127-sync1"></script>
+  <script type="module" src="./site.mjs?v=20261128-noscore1"></script>
 </head>
 <body>
   <div class="page">
@@ -316,7 +318,8 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
               </select>
             </div>
             <div class="field"><label for="maxScore">今回の満点</label>
-              <div class="suffix"><input id="maxScore" type="number" min="5" max="1000" step="5" value="40" required><span>点</span></div>
+              <div class="suffix"><input id="maxScore" type="number" min="0" max="1000" step="5" value="40" required aria-describedby="maxScoreHint"><span>点</span></div>
+              <p class="micro" id="maxScoreHint">０点にすると、得点なしで添削します。</p>
             </div>
           </div>
           <p id="taskKindNote" class="micro" hidden>※「課題の遂行」では、個人的な体験の記述、提案・助言、立場の選択、イラスト・写真の描写、会話文・手紙文・電子メール（空所補充を含む）などに対応します。</p>
@@ -335,6 +338,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
 
         <section class="panel" aria-labelledby="conditionsHeading">
           <div class="panel-head"><h2 id="conditionsHeading">減点条件を設定する</h2></div>
+          <div id="scoredConditions">
           <p class="micro conditions-note">減点幅は任意に変更できます（０点で減点なし）。<br>その他、文法・語法等の誤りは独自の基準を適用します。</p>
           <div class="field">
             <label for="invalidAnswerPenalty">根本的な読み違いなど、設問に対する答えとして成立していない場合</label>
@@ -354,6 +358,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
           </div>
           <div id="conditionList" aria-live="polite"></div>
           <div class="row-actions"><button id="addCondition" class="secondary" type="button">＋減点条件を追加</button><button id="exampleConditions" class="text-btn" type="button" aria-haspopup="dialog" aria-controls="conditionExamplesDialog">設定例</button></div>
+          </div>
           <div class="field" id="customNotesField">
             <label for="customNotes">そのほかの特別な指示<span class="optional">（空欄可）</span></label>
             <textarea id="customNotes" rows="3" aria-describedby="customNotesHint" spellcheck="true" autocorrect="on" autocomplete="on" autocapitalize="sentences" writingsuggestions="true"></textarea>
