@@ -264,7 +264,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
   .condition .remove{width:30px}
 }
   </style>
-  <script type="module" src="./site.mjs?v=20261128-noscore2"></script>
+  <script type="module" src="./site.mjs?v=20261128-noscore3"></script>
 </head>
 <body>
   <div class="page">
@@ -368,9 +368,9 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
           </div>
           <div id="unscoredConditions" hidden>
             <label class="check unscored-check"><input type="checkbox" id="feedbackinvalid" checked><span>根本的な読み違いなど、設問に対する答えとして成立していないものを指摘する</span></label>
-            <label class="check unscored-check"><input type="checkbox" id="feedbackB" checked><span>「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むものを指摘する</span></label>
+            <label class="check unscored-check" id="feedbackBField"><input type="checkbox" id="feedbackB" checked><span>「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むものを指摘する</span></label>
             <label class="check unscored-check"><input type="checkbox" id="feedbackC" checked><span>「趣旨が不明確」「テーマとの関連が不明確」など、不明瞭な箇所を含むものを指摘する<span class="content-penalty-note">※「明らかに英文が成立していない記述」や「語彙や構文などの重大な誤りのために趣旨が不明確な記述」が含まれるものを含む</span></span></label>
-            <label class="check unscored-check"><input type="checkbox" id="feedbackD" checked><span>「自明・不要なことがら」「重複したことがら」など、明らかに冗長な内容を含むものを指摘する</span></label>
+            <label class="check unscored-check" id="feedbackDField"><input type="checkbox" id="feedbackD" checked><span>「自明・不要なことがら」「重複したことがら」など、明らかに冗長な内容を含むものを指摘する</span></label>
             <div id="feedbackConditionList" aria-live="polite"></div>
             <div class="row-actions"><button id="addFeedbackCondition" class="secondary" type="button">＋添削条件を追加</button><button id="exampleFeedbackConditions" class="text-btn" type="button" aria-haspopup="dialog" aria-controls="conditionExamplesDialog">設定例</button></div>
           </div>
