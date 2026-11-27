@@ -1,6 +1,13 @@
 // 純粋関数。採点内容は常に持ち込み診療所（main）の原文から抽出する。
 export const CLINIC_URL = 'https://raw.githubusercontent.com/ikuyatabis/english-writing-feedback/main/misc/index.html';
-export function exampleConditions(){return [{label:'長所の記述',points:25},{label:'短所の記述',points:25}];}
+export function suggestedDeduction(maxScore){
+  const max=Number(maxScore);
+  return Number.isInteger(max)&&max>=1&&max<=1000?Math.floor(max/10)*5:0;
+}
+export function exampleConditions(maxScore=50){
+  const points=suggestedDeduction(maxScore);
+  return points>0?[{label:'長所の記述',points},{label:'短所の記述',points}]:[];
+}
 
 function readJoinedStrings(source, regex, label) {
   const match = source.match(regex);

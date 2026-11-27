@@ -1,4 +1,4 @@
-import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,exampleConditions} from './grading-core.mjs';
+import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,exampleConditions,suggestedDeduction} from './grading-core.mjs?v=20261127-3';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -51,8 +51,16 @@ function syncInvalidAnswerPenalty(){
   penalty.value=max.value;
   penalty.setCustomValidity('');
 }
-el('maxScore').addEventListener('input',syncInvalidAnswerPenalty);
+function syncSuggestedDeduction(){
+  const points=suggestedDeduction(el('maxScore').value);
+  for(const input of document.querySelectorAll('.condition-points'))input.placeholder=points>0?String(points):'';
+  const example=el('exampleConditions');
+  example.disabled=points===0;
+  example.title=points===0?'満点が10点未満、または無効な場合は、減点幅を個別に入力してください。':'';
+}
+el('maxScore').addEventListener('input',()=>{syncInvalidAnswerPenalty();syncSuggestedDeduction();});
 syncInvalidAnswerPenalty();
+syncSuggestedDeduction();
 
 function addCondition(label='',points=''){
   const group=document.createElement('div');group.className='condition';
@@ -62,14 +70,16 @@ function addCondition(label='',points=''){
   const b=document.createElement('div');
   const lb=document.createElement('label');lb.textContent='減点幅';
   const p=document.createElement('div');p.className='points';
-  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='5';point.max='1000';point.step='5';point.placeholder='25';point.value=points;
+  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='5';point.max='1000';point.step='5';point.value=points;
   const unit=document.createElement('span');unit.textContent='点';p.append(point,unit);lb.appendChild(p);b.appendChild(lb);
   const remove=document.createElement('button');remove.className='remove';remove.type='button';remove.setAttribute('aria-label','この条件を削除');remove.textContent='×';remove.addEventListener('click',()=>group.remove());
-  group.append(a,b,remove);el('conditionList').append(group);
+  group.append(a,b,remove);el('conditionList').append(group);syncSuggestedDeduction();
 }
 el('addCondition').addEventListener('click',()=>addCondition());
 el('exampleConditions').addEventListener('click',()=>{
-  el('conditionList').replaceChildren();for(const {label,points} of exampleConditions())addCondition(label,points);
+  const examples=exampleConditions(el('maxScore').value);
+  if(!examples.length)return;
+  el('conditionList').replaceChildren();for(const {label,points} of examples)addCondition(label,points);
 });
 
 function formData(){

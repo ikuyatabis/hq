@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import fs from 'node:fs';import {parseClinicSource,wordRule,parseConditions,buildPrompt,countWords,exampleConditions} from '../grading-core.mjs';
+import fs from 'node:fs';import {parseClinicSource,wordRule,parseConditions,buildPrompt,countWords,exampleConditions,suggestedDeduction} from '../grading-core.mjs';
 
 const data=`const COMMON=["【最終回答の構成：３部構成】","得点：〈最終得点〉","共通の採点指示"].join("\\n");\n`+
 `const RUBRIC={opinion:["意見採点"].join("\\n"),chart:["図表採点"].join("\\n"),task:["課題採点"].join("\\n")};\n`+
@@ -54,13 +54,14 @@ test('サイト名称は秘密基地，ルートで動く相対パスを使用',
   assert.match(html,/<title>秘密基地｜セミオーダー添削<\/title>/);
   assert.match(html,/<h1>秘密基地｜セミオーダー添削<\/h1>/);
   assert.match(html,/<style>/);
-  assert.match(html,/src="\.\/site\.mjs"/);
+  assert.match(html,/src="\.\/site\.mjs(?:\?v=[^"]+)?"/);
   assert.doesNotMatch(html,/先生の採点室/);
 });
 
 test('例の入力ボタンはテスト済みの共通データを使用する',()=>{
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
-  assert.match(site,/for\(const \{label,points\} of exampleConditions\(\)\)addCondition\(label,points\)/);
+  assert.match(site,/const examples=exampleConditions\(el\('maxScore'\)\.value\)/);
+  assert.match(site,/for\(const \{label,points\} of examples\)addCondition\(label,points\)/);
   assert.deepEqual(exampleConditions(),[{label:'長所の記述',points:25},{label:'短所の記述',points:25}]);
 });
 test('目安語数の下限と10語刻みはHTMLと生成側で一致する',()=>{
@@ -84,8 +85,21 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
   const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
   const css=fs.readFileSync(new URL('../styles.css',import.meta.url),'utf8');
-  assert.match(site,/point\.placeholder='25'/);
-  assert.doesNotMatch(site,/point\.placeholder='２５'/);
+  assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
+  assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-2"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-3"/);
+});
+
+test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
+  for(const [max,expected] of [[100,50],[75,35],[55,25],[50,25],[45,20],[40,20],[35,15],[30,15],[21,10],[19,5],[10,5],[9,0],[1,0]]){
+    assert.equal(suggestedDeduction(max),expected);
+    assert.equal(suggestedDeduction(String(max)),expected);
+    assert.deepEqual(exampleConditions(max).map(item=>item.points),expected?[expected,expected]:[]);
+    if(expected)assert.match(buildPrompt({...example,maxScore:max,conditions:exampleConditions(max)},clinic),new RegExp('内容面で－'+expected+'点'));
+  }
+  for(const invalid of ['',0,1001,NaN,50.5])assert.equal(suggestedDeduction(invalid),0);
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  assert.match(site,/syncInvalidAnswerPenalty\(\);syncSuggestedDeduction\(\)/);
+  assert.match(site,/append\(group\);syncSuggestedDeduction\(\)/);
 });
