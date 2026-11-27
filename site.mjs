@@ -1,4 +1,4 @@
-import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults,feedbackKeys} from './grading-core.mjs?v=20261128-wording1';
+import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults,feedbackKeys} from './grading-core.mjs?v=20261128-blankscore1';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -47,7 +47,7 @@ el('gradingForm').addEventListener('input',e=>{if(typeof e.target.setCustomValid
 el('answerText').addEventListener('input',()=>{el('wordPreview').textContent=fullwidthDigits(countWords(el('answerText').value).toLocaleString('ja-JP'));});
 
 function validMaxScore(input){
-  return !input.validity.badInput&&/^\d+$/.test(input.value)&&Number(input.value)>=0&&Number(input.value)<=1000;
+  return !input.validity.badInput&&(input.value===''||(/^\d+$/.test(input.value)&&Number(input.value)>=0&&Number(input.value)<=1000));
 }
 function syncInvalidAnswerPenalty(){
   const max=el('maxScore'), penalty=el('invalidAnswerPenalty');

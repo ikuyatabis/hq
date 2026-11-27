@@ -205,7 +205,7 @@ function buildUnscoredPrompt(fields,clinic){
 export function buildPrompt(fields,clinic){
   if(!clinic?.common||!clinic?.rubrics?.[fields.kind]) throw new Error('診療所の最新基準が読み込めていません。');
   const M=Number(fields.maxScore);
-  if(String(fields.maxScore??'').trim()===''||!Number.isInteger(M)||M<0||M>1000)throw new Error('今回の満点には0～1000の整数を入力してください。');
+  if(fields.maxScore==null||!Number.isInteger(M)||M<0||M>1000)throw new Error('今回の満点には0～1000の整数を入力してください。');
   if(M===0)return buildUnscoredPrompt(fields,clinic);
   const rawInvalid=String(fields.invalidAnswerPenalty??M).trim();
   if(!/^\d+$/.test(rawInvalid)||Number(rawInvalid)>M)throw new Error(`設問に対する答えとして成立していない場合の減点幅は0～${M}の整数で指定してください。`);

@@ -264,7 +264,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
   .condition .remove{width:30px}
 }
   </style>
-  <script type="module" src="./site.mjs?v=20261128-wording1"></script>
+  <script type="module" src="./site.mjs?v=20261128-blankscore1"></script>
 </head>
 <body>
   <div class="page">
@@ -325,9 +325,9 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
               </select>
             </div>
             <div class="field" style="align-self:end"><label for="maxScore" class="visually-hidden">今回の満点</label>
-              <div class="suffix"><input id="maxScore" type="number" min="0" max="1000" step="5" value="40" required aria-describedby="maxScoreHint"><span>点満点</span></div>
+              <div class="suffix"><input id="maxScore" type="number" min="0" max="1000" step="5" value="40" aria-describedby="maxScoreHint"><span>点満点</span></div>
             </div>
-            <p class="micro" id="maxScoreHint" style="grid-column:1/-1;margin:0;color:#c00;font-weight:700">※ヒント：満点を０点にすると、得点なしで添削します（普段使いにおすすめ）。</p>
+            <p class="micro" id="maxScoreHint" style="grid-column:1/-1;margin:0;color:#c00;font-weight:700">※ヒント：配点を０または空欄に設定すると、得点なしで添削します（普段使いにおすすめ）。</p>
           </div>
           <p id="taskKindNote" class="micro" hidden>※「課題の遂行」では、個人的な体験の記述、提案・助言、立場の選択、イラスト・写真の描写、会話文・手紙文・電子メール（空所補充を含む）などに対応します。</p>
           <fieldset class="group compact">
