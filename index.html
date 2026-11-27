@@ -324,8 +324,8 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
                 <option value="task">③ 課題の遂行</option>
               </select>
             </div>
-            <div class="field"><label for="maxScore">今回の満点</label>
-              <div class="suffix"><input id="maxScore" type="number" min="0" max="1000" step="5" value="40" required aria-describedby="maxScoreHint"><span>点</span></div>
+            <div class="field" style="align-self:end"><label for="maxScore" class="visually-hidden">今回の満点</label>
+              <div class="suffix"><input id="maxScore" type="number" min="0" max="1000" step="5" value="40" required aria-describedby="maxScoreHint"><span>点満点</span></div>
             </div>
             <p class="micro" id="maxScoreHint" style="grid-column:1/-1;margin:0;color:#c00;font-weight:700">※ヒント：満点を０点にすると、得点なしで添削します（シンプルな添削におすすめです）。</p>
           </div>
