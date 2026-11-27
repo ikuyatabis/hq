@@ -1,4 +1,4 @@
-import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261128-noscore2';
+import {CLINIC_SNAPSHOT_URL,parseClinicSnapshot,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults,feedbackKeys} from './grading-core.mjs?v=20261128-noscore3';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -65,6 +65,12 @@ function syncContentPenalties(){
   el('contentPenaltyB').disabled=chart;
   el('contentPenaltyDField').hidden=chart;
   el('contentPenaltyD').disabled=chart;
+  const keys=feedbackKeys(kind);
+  for(const key of ['B','D']){
+    const applicable=keys.includes(key);
+    el('feedback'+key+'Field').hidden=!applicable;
+    el('feedback'+key).disabled=!applicable;
+  }
   if(validMaxScore(max)&&Number(max.value)===0)return;
   for(const [key,value] of Object.entries(defaults)){
     const input=el('contentPenalty'+key);
@@ -194,7 +200,7 @@ el('closeConditionExamples').addEventListener('click',()=>el('conditionExamplesD
 function formData(){
   const conditions=[...el('conditionList').querySelectorAll('.condition')].map(row=>({label:row.querySelector('.condition-label').value,points:row.querySelector('.condition-points').value}));
   const contentPenalties=Object.fromEntries(Object.keys(contentPenaltyDefaults(el('kind').value)).map(key=>[key,el('contentPenalty'+key).value]));
-  const feedbackChecks=Object.fromEntries(['invalid','B','C','D'].map(key=>[key,el('feedback'+key).checked]));
+  const feedbackChecks=Object.fromEntries(feedbackKeys(el('kind').value).map(key=>[key,el('feedback'+key).checked]));
   const feedbackConditions=[...el('feedbackConditionList').querySelectorAll('.feedback-condition-label')].map(input=>input.value.trim()).filter(Boolean);
   return {feedbackChecks,feedbackConditions,contentPenalties,kind:el('kind').value,maxScore:el('maxScore').value,invalidAnswerPenalty:el('invalidAnswerPenalty').value,problemMode:selected('problemMode'),answerMode:selected('answerMode'),problemText:el('problemText').value,answerText:el('answerText').value,word:{mode:selected('wordMode'),approx:el('approxWords').value,low:el('lowWords').value,high:el('highWords').value},conditions,customNotes:el('customNotes').value,outputMode:selected('outputMode')};
 }
