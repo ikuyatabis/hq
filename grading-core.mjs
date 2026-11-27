@@ -108,7 +108,7 @@ export function parseConditions(conditions){
     const label=(item.label||'').trim();
     const raw=String(item.points??'').trim();
     if(!label&&!raw)continue;
-    if(!label)throw new Error('特別減点の項目名を入力してください。');
+    if(!label)throw new Error('減点条件の項目名を入力してください。');
     if(!/^\d+$/.test(raw)||Number(raw)<1||Number(raw)>1000)throw new Error(`「${label}」の減点は1～1000の整数で指定してください。`);
     result.push({label,points:Number(raw)});
   }
