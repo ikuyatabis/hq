@@ -102,8 +102,12 @@ export function parseConditions(conditions){
   return result;
 }
 
-export function contentPenaltyDefaults(kind){
-  return kind==='chart'?{B:10,C:10}:{B:20,C:10,D:10};
+export function contentPenaltyDefaults(kind,maxScore=40){
+  const max=Number(maxScore);
+  const valid=Number.isInteger(max)&&max>=1&&max<=1000;
+  const half=suggestedDeduction(max);
+  const third=valid?Math.floor(max/15)*5:0;
+  return kind==='chart'?{B:10,C:third}:{B:half,C:third,D:third};
 }
 
 // Replace the existing rubric amount, not its conditions or scope.

@@ -1,4 +1,4 @@
-import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-8';
+import {CLINIC_URL,parseClinicSource,countWords,buildPrompt,conditionPresets,suggestedDeduction,contentPenaltyDefaults} from './grading-core.mjs?v=20261127-10';
 const el=id=>document.getElementById(id);
 const disableBrowserAssistance=node=>{
   for(const [name,value] of Object.entries({"spellcheck":"false","autocorrect":"off","autocomplete":"off","autocapitalize":"none","writingsuggestions":"false","data-gramm":"false","data-gramm_editor":"false","data-enable-grammarly":"false","data-lt-active":"false","data-ms-editor":"false"})) node.setAttribute(name,value);
@@ -57,7 +57,8 @@ function syncInvalidAnswerPenalty(){
 function syncContentPenalties(){
   const kind=el('kind').value;
   const chart=kind==='chart';
-  const defaults=contentPenaltyDefaults(kind);
+  const max=el('maxScore');
+  const defaults=contentPenaltyDefaults(kind,validMaxScore(max)?max.value:40);
   el('contentPenaltyBLabel').textContent=chart?'図表と矛盾する明白な誤認':'事実誤認・不適切な理由や根拠・重大な矛盾';
   el('contentPenaltyDField').hidden=chart;
   el('contentPenaltyD').disabled=chart;
@@ -75,7 +76,7 @@ function syncSuggestedDeduction(){
   for(const input of document.querySelectorAll('.condition-points'))input.placeholder=points>0?String(points):'';
   if(el('conditionExamplesDialog').open)renderConditionExamples();
 }
-el('maxScore').addEventListener('input',()=>{syncInvalidAnswerPenalty();syncSuggestedDeduction();});
+el('maxScore').addEventListener('input',()=>{syncInvalidAnswerPenalty();syncSuggestedDeduction();if(validMaxScore(el('maxScore')))syncContentPenalties();});
 syncInvalidAnswerPenalty();
 syncSuggestedDeduction();
 

@@ -64,3 +64,18 @@ test('現行診療所の分類別基準に教員指定の減点幅を反映す�
     assert(!prompt.includes(clinic.rubrics[kind]));
   }
 });
+
+test('満点60点の連動減点が現行基準に反映される',()=>{
+  for(const kind of ['opinion','task','chart']){
+    const overrides=contentPenaltyDefaults(kind,60);
+    const changed=applyContentPenalties(clinic.rubrics[kind],kind,overrides);
+    const prompt=buildPrompt({...fields,maxScore:60,kind,outputMode:'screen',contentPenalties:overrides},clinic);
+    assert(prompt.includes('今回の満点は60点'));
+    assert.match(changed,kind==='chart'?/趣旨不明確・テーマとの関連不明確は一律－20点/:/^B：[^\n]*一律－30点/m);
+    if(kind!=='chart'){
+      assert.match(changed,/^C：[^\n]*一律－20点/m);
+      assert.match(changed,/^D：[^\n]*一律－20点/m);
+      assert(prompt.includes(changed));
+    }
+  }
+});

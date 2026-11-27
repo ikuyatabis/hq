@@ -96,7 +96,7 @@ test('特別減点の減点幅の例示は半角数字と入力値と同じ色�
   assert.match(site,/input\.placeholder=points>0\?String\(points\):''/);
   assert.doesNotMatch(site,/point\.placeholder='[0-9０-９]+'/);
   for(const source of [html,css])assert.match(source,/\.condition-points::placeholder\{color:var\(--ink\);opacity:1\}/);
-  assert.match(html,/src="\.\/site\.mjs\?v=20261127-9"/);
+  assert.match(html,/src="\.\/site\.mjs\?v=20261127-10"/);
 });
 
 test('満点の半分を5点刻みで切り下げ、例示にも使用する',()=>{
@@ -161,4 +161,15 @@ test('満点は5点刻みのスピナーと任意の整数入力を両立する'
   assert.match(site,/const valid=validMaxScore\(max\)/);
   assert.doesNotMatch(site,/report\(el\('maxScore'\)\)/);
   assert.match(buildPrompt({...example,maxScore:43},clinic),/今回の満点は43点/);
+});
+
+test('分類別減点の初期値は満点の半分・3分の1を5点刻みで切り下げる',()=>{
+  for(const [max,half,third] of [[5,0,0],[10,5,0],[15,5,5],[30,15,10],[40,20,10],[43,20,10],[45,20,15],[50,25,15],[60,30,20],[75,35,25],[100,50,30]]){
+    for(const kind of ['opinion','task'])assert.deepEqual(contentPenaltyDefaults(kind,max),{B:half,C:third,D:third});
+    assert.deepEqual(contentPenaltyDefaults('chart',max),{B:10,C:third});
+    assert.deepEqual(contentPenaltyDefaults('opinion',String(max)),{B:half,C:third,D:third});
+  }
+  const site=fs.readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  assert.match(site,/contentPenaltyDefaults\(kind,validMaxScore\(max\)\?max.value:40\)/);
+  assert.match(site,/if\(validMaxScore\(el\('maxScore'\)\)\)syncContentPenalties\(\)/);
 });
