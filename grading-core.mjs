@@ -146,6 +146,8 @@ export function applyContentPenalties(rubric,kind,overrides){
 
 export function countWords(text){return (text.match(/\S+/g)||[]).filter(t=>/[A-Za-z0-9]/.test(t)).length;}
 
+export function feedbackKeys(kind){return ['invalid',...Object.keys(contentPenaltyDefaults(kind))];}
+
 function buildUnscoredPrompt(fields,clinic){
   const w=wordRule(fields.word);
   if(!['text','file'].includes(fields.problemMode)||!['text','file'].includes(fields.answerMode))throw new Error('問題と答案の提出方法を選んでください。');
@@ -157,14 +159,16 @@ function buildUnscoredPrompt(fields,clinic){
   const notes=String(fields.customNotes??'').trim();
   const feedbackLabels={"invalid":"根本的な読み違いなど，設問に対する答えとして成立していないもの","B":"「事実に反する」「根拠に乏しい」「内容が不適切・稚拙」「具体例・理由が不適切」「矛盾がある」といった不自然・不適切な箇所を含むもの","C":"「趣旨が不明確」「テーマとの関連が不明確」など，不明瞭な箇所を含むもの（明らかに英文が成立しない記述や重大な語彙・構文の誤りにより趣旨が不明確な記述を含む）","D":"「自明・不要なことがら」「重複したことがら」など，明らかに冗長な内容を含むもの"};
   const checks=fields.feedbackChecks??{};
-  const selectedChecks=Object.keys(feedbackLabels).filter(k=>checks[k]!==false);
-  const excludedChecks=Object.keys(feedbackLabels).filter(k=>checks[k]===false);
+  const keys=feedbackKeys(fields.kind);
+  const selectedChecks=keys.filter(k=>checks[k]!==false);
+  const excludedChecks=keys.filter(k=>checks[k]===false);
   const missing=(fields.feedbackConditions??[]).map(s=>String(s).trim()).filter(Boolean);
   const feedbackInstructions=[
     '【今回の添削条件：教員の選択を優先】',
     '以下は内容面の指摘範囲を決める条件である。各項目のチェック状態を厳守する。チェックなしの項目は，後続の共通・分類別基準に該当していても，その観点を理由にした指摘・総評・改善点の説明を行わない。別の観点への付け替えも禁止する。独立した文法・語法・語彙・書式の誤り，語数・資料確認，教員が明示した未記載項目の確認は通常どおり行う。必要な添付不足・判読不能・分類の確認による保留はチェックにかかわらず維持する。',
     'チェックあり（指摘する）：'+(selectedChecks.length?selectedChecks.map(k=>feedbackLabels[k]).join('／'):'なし'),
     'チェックなし（この観点では指摘しない）：'+(excludedChecks.length?excludedChecks.map(k=>feedbackLabels[k]).join('／'):'なし'),
+    ...(fields.kind==='chart'?['図表の説明では，意見の表明・課題の遂行に固有のB・Dの観点は設定対象外とする。図表の主体・数値・時間関係・増減・差・倍数・比較・割合・主要項目や変化の欠落・取り違えは，図表の説明固有の基準に従って定性的に指摘する。ただしチェックを外した根本的な読み違い・趣旨不明確に該当する問題を別の観点に付け替えて指摘しない。独立した図表固有の誤りは通常どおり指摘する。']:[]),
     '未記載の場合に指摘する項目：'+(missing.length?missing.map((s,i)=>(i+1)+'. '+JSON.stringify(s)).join('\n'):'追加指定なし'),
     '未記載項目は設問・資料と照合し，実質的に欠ける場合に具体的に指摘する。空欄は無視し，同じ問題を重複して指摘しない。設問自体にある要求は引き続き確認するが，チェックなしの観点の指摘を別名で復活させない。改善例は選択された指摘と独立した英語面の誤りを中心に必要最小限の修正を行う。おすすめ解答例は設問を満たす自然な解答として提示するが，チェックなしの観点による元答案への批評は加えない。補足指示もチェックなしの観点を暗黙に復活させない。'
   ];
