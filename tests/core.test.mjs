@@ -141,3 +141,10 @@ test('分類別の内容面減点は既存の規定の点数だけを置換す�
   const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
   for(const [id,value] of [['B',20],['C',10],['D',10]])assert(html.includes('id="contentPenalty'+id+'" type="number" min="0" max="1000" step="5" value="'+value+'"'));
 });
+
+test('画面の初期満点は40点、根本的な読み違いの初期減点も40点',()=>{
+  const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  assert.match(html,/id="maxScore" type="number" min="1" max="1000" step="1" value="40"/);
+  assert.match(html,/id="invalidAnswerPenalty" type="number" min="0" max="40" step="5" value="40"/);
+  assert.equal(suggestedDeduction(40),20);
+});
