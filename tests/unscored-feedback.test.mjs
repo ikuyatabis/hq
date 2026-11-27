@@ -32,3 +32,21 @@ test('unscored mode still validates answer and word settings',()=>{
   assert.throws(()=>buildPrompt({...base,maxScore:0,answerText:''},clinic));
   assert.throws(()=>buildPrompt({...base,maxScore:0,word:{mode:'range',low:120,high:80}},clinic));
 });
+
+test('four feedback switches are independent, default on, and missing items are passed without scores',()=>{
+  const keys=['invalid','B','C','D'];
+  for(const kind of ['opinion','chart','task'])for(let mask=0;mask<16;mask++){
+    const feedbackChecks=Object.fromEntries(keys.map((k,i)=>[k,!!(mask&(1<<i))]));
+    const prompt=buildPrompt({...base,kind,maxScore:0,feedbackChecks,feedbackConditions:['長所の記述',' ','短所の記述']},clinic);
+    const on=prompt.split('\n').find(l=>l.startsWith('チェックあり（指摘する）：'));
+    const off=prompt.split('\n').find(l=>l.startsWith('チェックなし（この観点では指摘しない）：'));
+    for(const [i,fragment] of ['根本的な読み違い','「事実に反する」','「趣旨が不明確」','「自明・不要なことがら」'].entries()){
+      assert.equal(on.includes(fragment),!!(mask&(1<<i)));
+      assert.equal(off.includes(fragment),!(mask&(1<<i)));
+    }
+    assert(prompt.includes('1. "長所の記述"\n2. "短所の記述"'));
+    assert(!prompt.includes('【今回の特別減点：内容面】'));
+  }
+  const p=buildPrompt({...base,maxScore:0},clinic);
+  assert(p.includes('チェックなし（この観点では指摘しない）：なし'));
+});
