@@ -62,7 +62,7 @@ function addCondition(label='',points=''){
   const b=document.createElement('div');
   const lb=document.createElement('label');lb.textContent='減点幅';
   const p=document.createElement('div');p.className='points';
-  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='1';point.max='1000';point.step='1';point.placeholder='２５';point.value=points;
+  const point=document.createElement('input');point.className='condition-points';point.type='number';point.min='5';point.max='1000';point.step='5';point.placeholder='２５';point.value=points;
   const unit=document.createElement('span');unit.textContent='点';p.append(point,unit);lb.appendChild(p);b.appendChild(lb);
   const remove=document.createElement('button');remove.className='remove';remove.type='button';remove.setAttribute('aria-label','この条件を削除');remove.textContent='×';remove.addEventListener('click',()=>group.remove());
   group.append(a,b,remove);el('conditionList').append(group);
@@ -119,7 +119,10 @@ el('gradingForm').addEventListener('submit',async e=>{
     const label=row.querySelector('.condition-label'),points=row.querySelector('.condition-points');
     if(!label.value.trim()&&!points.value.trim()&&!points.validity.badInput)continue;
     if(!report(label,label.value.trim()?'':'特別減点の項目名を入力してください。'))return;
-    if(!report(points,/^\d+$/.test(points.value)?'':'減点幅を1～1000の整数で入力してください。'))return;
+    // Five-point spinner; direct entry still accepts every integer from 1 to 1000.
+    if(!points.validity.badInput&&/^\d+$/.test(points.value)&&Number(points.value)>=1&&Number(points.value)<=1000){
+      points.setCustomValidity('');
+    }else if(!report(points,'減点幅を1～1000の整数で入力してください。'))return;
   }
   let prompt,fields;
   try{fields=formData();prompt=buildPrompt(fields,clinic);}catch(err){el('actionMessage').classList.add('error');el('actionMessage').textContent=err.message;return;}
