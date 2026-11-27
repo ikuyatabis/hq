@@ -66,7 +66,7 @@ function addCondition(label='',points=''){
   const group=document.createElement('div');group.className='condition';
   const a=document.createElement('div');
   const la=document.createElement('label');la.textContent='未記載の場合に減点する項目';
-  const inp=document.createElement('input');inp.spellcheck=true;inp.setAttribute('autocorrect','on');inp.setAttribute('autocomplete','on');inp.setAttribute('autocapitalize','sentences');inp.setAttribute('writingsuggestions','true');inp.className='condition-label';inp.type='text';inp.placeholder='例：長所の記述';inp.value=label;la.appendChild(inp);a.appendChild(la);
+  const inp=document.createElement('input');inp.spellcheck=true;inp.setAttribute('autocorrect','on');inp.setAttribute('autocomplete','on');inp.setAttribute('autocapitalize','sentences');inp.setAttribute('writingsuggestions','true');inp.className='condition-label';inp.type='text';inp.placeholder='例：項目＿＿の記述';inp.value=label;la.appendChild(inp);a.appendChild(la);
   const b=document.createElement('div');
   const lb=document.createElement('label');lb.textContent='減点幅';
   const p=document.createElement('div');p.className='points';
