@@ -253,8 +253,13 @@ el('gradingForm').addEventListener('submit',async e=>{
   }
   if(selected('wordMode')==='range'){
     const low=el('lowWords'),high=el('highWords');
-    if(!report(low,low.value.trim()?'':'語数の下限を入力してください。'))return;
-    if(!report(high,high.value.trim()?'':'語数の上限を入力してください。'))return;
+    // Ten-word spinner as in the clinic; preserve direct entry of any integer from 1 to 5000.
+    for(const [input,label] of [[low,'下限'],[high,'上限']]){
+      const value=Number(input.value);
+      if(!input.validity.badInput&&input.value.trim()&&Number.isInteger(value)&&value>=1&&value<=5000){
+        input.setCustomValidity('');
+      }else if(!report(input,'語数の'+label+'には1～5000の整数を入力してください。'))return;
+    }
     if(Number(low.value)>Number(high.value)&&!report(high,'語数の上限は下限以上にしてください。'))return;
   }
   if(!scoreless())for(const row of el('conditionList').querySelectorAll('.condition')){

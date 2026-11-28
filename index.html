@@ -264,7 +264,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
   .condition .remove{width:30px}
 }
   </style>
-  <script type="module" src="./site.mjs?v=20261128-blankscore1"></script>
+  <script type="module" src="./site.mjs?v=20261128-wordformat1"></script>
 </head>
 <body>
   <div class="page">
@@ -332,13 +332,13 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
           <p id="taskKindNote" class="micro" hidden>※「課題の遂行」では、個人的な体験の記述、提案・助言、立場の選択、イラスト・写真の描写、会話文・手紙文・電子メール（空所補充を含む）などに対応します。</p>
           <fieldset class="group compact">
             <legend>語数の指定</legend>
-            <div class="choices compact-pills">
-              <label class="choice"><input type="radio" name="wordMode" value="approx" checked>約○語</label>
-              <label class="choice"><input type="radio" name="wordMode" value="range">○～○語</label>
+            <div class="choices">
+              <label class="choice"><input type="radio" name="wordMode" value="approx" checked>＿＿ words程度</label>
+              <label class="choice"><input type="radio" name="wordMode" value="range">＿＿ ～ ＿＿ words</label>
               <label class="choice"><input type="radio" name="wordMode" value="none">指定なし</label>
             </div>
-            <div id="approxBox" class="word-fields"><label for="approxWords">目安語数</label><input type="number" id="approxWords" min="10" max="5000" step="10" value="100"><span>語程度</span></div>
-            <div id="rangeBox" class="word-fields" hidden><label for="lowWords">指定範囲</label><input type="number" id="lowWords" min="1" max="5000" value="80"><span>～</span><input type="number" id="highWords" min="1" max="5000" value="120"><span>語</span></div>
+            <div id="approxBox" class="word-row"><input id="approxWords" type="number" min="10" max="5000" step="10" value="100" aria-label="目安語数">words程度</div>
+            <div id="rangeBox" class="word-row" hidden><input id="lowWords" type="number" min="10" max="5000" step="10" value="80" aria-label="語数の下限">～<input id="highWords" type="number" min="10" max="5000" step="10" value="120" aria-label="語数の上限">words</div>
             <p class="micro" id="wordModeHint">語数の減点幅・例外には、独自の基準を適用します。</p>
           </fieldset>
         </section>

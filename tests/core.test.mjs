@@ -76,7 +76,12 @@ test('例の入力ボタンはテスト済みの共通データを使用する',
 });
 test('目安語数の下限と10語刻みはHTMLと生成側で一致する',()=>{
   const html=fs.readFileSync(new URL('../index.html',import.meta.url),'utf8');
-  assert.match(html,/id="approxWords" min="10" max="5000" step="10" value="100"/);
+  assert.match(html,/id="approxWords" type="number" min="10" max="5000" step="10" value="100" aria-label="目安語数">words程度/);
+  assert.match(html,/value="approx" checked>＿＿ words程度/);
+  assert.match(html,/value="range">＿＿ ～ ＿＿ words/);
+  assert.match(html,/id="lowWords" type="number" min="10" max="5000" step="10" value="80" aria-label="語数の下限">～/);
+  assert.match(html,/id="highWords" type="number" min="10" max="5000" step="10" value="120" aria-label="語数の上限">words/);
+  assert.match(wordRule({mode:'range',low:75,high:105}),/75～105語/);
   assert.throws(()=>wordRule({mode:'approx',approx:9}),/10～5000/);
   assert.match(wordRule({mode:'approx',approx:10}),/語数減点0点/);
   assert.match(wordRule({mode:'range',low:1,high:10}),/語数減点0点/);
