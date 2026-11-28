@@ -99,8 +99,6 @@ function syncScoreMode(){
   el('wordModeHint').textContent=off?'語数条件に関する指摘には、独自の基準を適用します。':'語数の減点幅・例外には、独自の基準を適用します。';
   el('conditionsHeading').textContent=off?'添削条件を設定する':'減点条件を設定する';
   el('rubricHeading').textContent=off?'添削方法を指定する':'採点方法を指定する';
-  el('startHeading').textContent=off?'ChatGPTで添削を始める':'ChatGPTで採点を始める';
-  el('launch').textContent=off?'添削用データをコピーしてChatGPTを開く':'採点用データをコピーしてChatGPTを開く';
 }
 el('maxScore').addEventListener('input',()=>{syncScoreMode();syncInvalidAnswerPenalty();syncSuggestedDeduction();if(validMaxScore(el('maxScore')))syncContentPenalties();});
 syncScoreMode();

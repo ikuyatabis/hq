@@ -264,7 +264,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
   .condition .remove{width:30px}
 }
   </style>
-  <script type="module" src="./site.mjs?v=20261128-wordformat1"></script>
+  <script type="module" src="./site.mjs?v=20261128-launch1"></script>
 </head>
 <body>
   <div class="page">
@@ -280,7 +280,7 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
         <ol>
           <li>① 問題文・資料と答案の提出方法を選びます。</li>
           <li>② 採点方法・語数・必要に応じた個別条件と、添削結果の出力形式を指定します。</li>
-          <li>③ <strong>「採点（添削）用データをコピーしてChatGPTを開く」</strong>を押します。基準と指定内容をまとめたデータが自動でコピーされます。</li>
+          <li>③ <strong>「資料をコピーしてChatGPTを開く」</strong>を押します。基準と指定内容をまとめたデータが自動でコピーされます。</li>
           <li>④ ChatGPTの入力欄に貼り付けます。写真・PDFを使用する場合はファイルを添付し、一緒に送信します。</li>
         </ol>
         <p class="hand-line" style="color:#c62828;font-weight:700">※無料プランをご利用の場合は、送信前に思考モード（現在の「Think」）を選ぶことをおすすめします。</p>
@@ -410,11 +410,8 @@ select:focus{outline:2px solid var(--teal);outline-offset:1px}
           </fieldset>
         </section>
 
-        <section class="panel action-panel" aria-labelledby="startHeading">
-          <h2 id="startHeading">ChatGPTで採点を始める</h2>
-          <p>指定内容と最新の基準をまとめてコピーし、ChatGPTを開きます。写真・PDFは開いたChatGPTの入力欄で添付してください。</p>
-          <p style="color:#c62828;font-weight:700">※無料プランをご利用の場合は、送信前に思考モード（現在の「Think」）を選ぶことをおすすめします。</p>
-          <button id="launch" class="primary" type="submit" disabled>採点用データをコピーしてChatGPTを開く</button>
+        <section class="panel action-panel" aria-label="ChatGPTを開く">
+          <button id="launch" class="primary" type="submit" disabled>資料をコピーしてChatGPTを開く</button>
           <p class="action-message" role="status" aria-live="polite" id="actionMessage"></p>
           <div id="manualPanel" hidden>
             <label for="manualPrompt">コピーに失敗した場合は、こちらを全選択してコピーしてください。</label>

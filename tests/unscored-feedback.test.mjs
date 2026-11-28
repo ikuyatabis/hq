@@ -57,3 +57,17 @@ test('classification-specific feedback switches are independent, default on, and
   const p=buildPrompt({...base,maxScore:0},clinic);
   assert(p.includes('チェックなし（この観点では指摘しない）：なし'));
 });
+
+test('launch panel uses one common button label in scored and unscored modes',()=>{
+  const html=readFileSync(new URL('../index.html',import.meta.url),'utf8');
+  const js=readFileSync(new URL('../site.mjs',import.meta.url),'utf8');
+  const panel=html.match(/<section class="panel action-panel"[^>]*>[\s\S]*?<\/section>/)?.[0];
+  assert(panel);
+  assert.match(panel,/<button id="launch"[^>]*>資料をコピーしてChatGPTを開く<\/button>/);
+  assert(!/<h2|startHeading|Think/.test(panel));
+  assert(html.includes('「資料をコピーしてChatGPTを開く」'));
+  assert(!js.includes("el('startHeading')"));
+  assert(!js.includes("el('launch').textContent"));
+  assert(panel.includes('id="actionMessage"'));
+  assert(panel.includes('id="manualPanel"'));
+});
